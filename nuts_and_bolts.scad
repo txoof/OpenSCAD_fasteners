@@ -4,6 +4,37 @@
 
   Metric nut and bolt sizes based on 
   http://www.roymech.co.uk/Useful_Tables/Screws/Hex_Screws.htm
+  http://www.numberfactory.com/nf%20metric%20screws%20and%20bolts.htm
+  http://www.csgnetwork.com/screwsochdcaptable.html
+
+  NOTE: OpenSCAD 2015.03-2 crashes *HARD* if the called m bolt size does not exist due
+  to a bug in the lookup() function. A bug report has been filed and should be fixed
+  in the next release:
+  https://github.com/openscad/openscad/issues/1528
+
+
+  Usage:
+  mBolt(
+    size = mX, // defined m bolt size (default: m3) 
+    len = N, // length of bolt shaft (default: 10)
+    center = true/false, // center the shaft (not including the head) (default: true)
+    style = "socket"/"hex" // default is socket drive (default: socket)
+    tolerance = N // positve or negative number to add to the shaft diameter (def: 0)
+  );
+
+  mNut(
+    size = mX, // defined m bolt size (default: m3)
+    center = true/false // center the nut (default: true)
+    tolerance = N // positive or negative number to add to the hole and body diameter
+  );
+
+  mWasher(
+    size = mX, // defined m bolt size (default m3)
+    tolerance = N // positive or negative number to add to the inner and outer diameter
+  );
+    
+
+
 */
 
 
@@ -58,10 +89,10 @@ socketSize = 2.5;
 
 // Meric Fastner Sizes
 m2 = [
-  [boltDia, 4],
+  [boltDia, 2],
   [headHexThick, 2],
   [boltNut, 4],
-  [boltNutMax, 2.3], 
+  [boltNutMax, 4.6], 
   [nutThick, 1.2], 
   [washerDia, 5.5],
   [washerThick, 0.3],
@@ -148,6 +179,8 @@ m12 = [
   [socketSize, 10]
 ];
 
+types = [m2, m3, m4, m6, m8, m10, m12];
+
 
 module mNut(size = m3, center = true, tolerance = 0) {
   fastnerType = size;
@@ -231,8 +264,126 @@ module mBolt(size = m3, len = 10, center = true, style = "socket", tolerance = 0
 
 }
 
-fastnerList = [m2, m3, m4, m6, m8, m10, m12];
 
-//mNut(m10);
-mBolt(m3);
+module mWasher(size = m3, tolerance = 0) {
+  fastnerType = size; 
+  t = tolerance; 
 
+  // lookup values
+  boltDiaL = lookup(boltDia, fastnerType);
+  headHexThickL = lookup(headHexThick, fastnerType);
+  boltNutL = lookup(boltNut, fastnerType);
+  boltNutMaxL = lookup(boltNutMax, fastnerType);
+  nutThickL = lookup(nutThick, fastnerType);
+  washerDiaL = lookup(washerDia, fastnerType);
+  washerThickL = lookup(washerThick, fastnerType);
+  socketHeadThickL = lookup(socketHeadThick, fastnerType);
+  socketDiaL = lookup(socketDia, fastnerType);
+  socketSizeL = lookup(socketSize, fastnerType);
+
+  difference() {
+    cylinder(r = washerDiaL/2+t/2, h = washerThickL+t, center = true, $fn = 36);
+    cylinder(r = boltDiaL/2+t/2, h = washerThickL*3, center = true, $fn = 36);
+  }
+  
+}
+
+
+module tSlot(size = m3, material = 3, bolt = 15, tolerance = .5) {
+  fastnerType = size;
+  t = tolerance; 
+  // lookup values
+  boltDiaL = lookup(boltDia, fastnerType);
+  headHexThickL = lookup(headHexThick, fastnerType);
+  boltNutL = lookup(boltNut, fastnerType);
+  boltNutMaxL = lookup(boltNutMax, fastnerType);
+  nutThickL = lookup(nutThick, fastnerType);
+  washerDiaL = lookup(washerDia, fastnerType);
+  washerThickL = lookup(washerThick, fastnerType);
+  socketHeadThickL = lookup(socketHeadThick, fastnerType);
+  socketDiaL = lookup(socketDia, fastnerType);
+  socketSizeL = lookup(socketSize, fastnerType);
+  
+  boltSlot = bolt + t - material; // length of nut slot - material + tolerence
+  nutTh = nutThickL + t; // thickness of nut + tolerence
+
+
+  cube([boltNutL+t, nutTh, material*2], center = true);
+  translate([0, (boltSlot)/2-nutTh, 0])
+    cube([boltDiaL+t, boltSlot, material*2], center=true);
+  echo("tslot total length:", boltSlot);
+  echo("length above bolt:" , boltSlot-nutTh);
+}
+
+module demo() {
+  for (i = types) {
+    fastnerType = i;
+    boltDiaL = lookup(boltDia, fastnerType);
+    headHexThickL = lookup(headHexThick, fastnerType);
+    boltNutL = lookup(boltNut, fastnerType);
+    boltNutMaxL = lookup(boltNutMax, fastnerType);
+    nutThickL = lookup(nutThick, fastnerType);
+    washerDiaL = lookup(washerDia, fastnerType);
+    washerThickL = lookup(washerThick, fastnerType);
+    socketHeadThickL = lookup(socketHeadThick, fastnerType);
+    socketDiaL = lookup(socketDia, fastnerType);
+    socketSizeL = lookup(socketSize, fastnerType);
+
+    translate([0, socketDiaL*10-40, 0])
+      color("red")
+      mBolt(i, len = washerDiaL);
+    translate([30, socketDiaL*10-40, 0])
+      color("orange")
+      mBolt(i, style = "hex", len = washerDiaL);
+    translate([60, socketDiaL*10-40, 0])
+      color("yellow")
+      mNut(i);
+    translate([90, socketDiaL*10-40, 0])
+      color("green")
+      mWasher(i);
+    translate([120, 25, 0])
+      tSlotDemo();
+  }
+}
+
+module tSlotDemo() {
+  thick = 3; // material thickness
+  sheet = [30, 50, thick];
+  tol = 0.5; // tolerance
+
+  difference() {
+    color("blue")
+      cube(sheet, center = true);
+    translate([0, 25-4.6, 0])
+      tSlot(size = m3, material = thick, bolt = 10, tolerance = tol);
+  }
+  
+  difference() {
+    color("yellow")
+      translate([0, 25+3/2, 0])
+      cube([30, thick, 25], center=true);
+    translate([0, 25-4.6+thick])
+      rotate([-90, 0, 0])
+      mBolt(m3, len = 10, tolerance = 0.1);
+  }
+
+  translate([0, 25-4.6+thick-tol, 0])
+    rotate([-90, 0, 0])
+    color("silver")
+    mBolt(m3, len = 10, tolerance = 0.01);
+
+  translate([0, 25-4.6, 0])
+    rotate([-90, 30, 0])
+    color("gray")
+    mNut(m3);
+
+}
+
+demo();
+//mWasher(m10);
+//mNut(m3);
+//mBolt(m3, tolerance = 0.02, center = false, style = "hex", len = 15);
+//mBolt(m3, tolerance = 0.05, center = true, len = 6);
+//tSlot(size = m3, bolt = 10);
+
+//tSlotDemo();
