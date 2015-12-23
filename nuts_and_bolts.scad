@@ -204,7 +204,6 @@ customizerLen = 10; //[1:40]
 /*[Hidden]*/
 customizerType = types[typeMeta];
 
-echo (typeMeta, customizerType);
 
 module mNut(size = m3, center = true, tolerance = 0) {
   fastnerType = size;
@@ -437,7 +436,7 @@ module tSlotDemo() {
 
 }
 
-simpleDemo();
+//simpleDemo();
 //demo();
 //mWasher(m10);
 //mNut(m3);

@@ -6,9 +6,12 @@ Aaron Ciuffo
 
 Import this library into your OpenSCAD design:
 ```
-use </path/to/libraries/nuts_and_bolts.scad>
+include </path/to/libraries/nuts_and_bolts.scad>
 mBolt(m3);
 ```
+
+Because of the lookup functions you will need to use `import` instead of `use`. Make sure you comment out the `simpleDemo()` line as well.
+
 This library provides metric series fasteners in the following sizes: 2, 3, 4, 6, 8, 10, 12.  Additional sizes can be added easily.
 
 The following fasteners are provided:
