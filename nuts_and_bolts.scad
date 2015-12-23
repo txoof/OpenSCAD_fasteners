@@ -2,6 +2,7 @@
   Aaron Ciuffo
   Released under GPL V3
 
+
   Metric nut and bolt sizes based on 
   http://www.roymech.co.uk/Useful_Tables/Screws/Hex_Screws.htm
   http://www.numberfactory.com/nf%20metric%20screws%20and%20bolts.htm
@@ -12,6 +13,8 @@
   in the next release:
   https://github.com/openscad/openscad/issues/1528
 
+  TODO:
+  * Add circular releif cuts in corners of tSlot to prevent cracking in acrylic
 
   Usage:
   mBolt(
@@ -29,11 +32,21 @@
   );
 
   mWasher(
-    size = mX, // defined m bolt size (default m3)
+    size = mX, // defined m bolt size (default: m3)
     tolerance = N // positive or negative number to add to the inner and outer diameter
   );
     
+  This module creates a t-shaped slot for making perpendicular joints in laser cut
+  objects. By default the bolt slot is 0.5mm larger than the distance across the 
+  nut FLATS. This shold make it easy to slot in a nut, but it should not be able
+  to spin to make tightening easier.
 
+  tSlot(
+    size = mX, // defined m bolt size (default: m3)
+    material = N, // thickness of material in mm (default: 3)
+    len = N, // total length of bolt to be used (default: 15)
+    tolerence = N // positive or negative number to add to the bolt size (def 0.5)
+  );
 
 */
 
@@ -69,6 +82,7 @@
     [socketSize, ]
   ];
 */
+
 
 /* [Hidden] */
 // This is a bit of an abuse of the lookup() function; the temporary values
@@ -181,6 +195,11 @@ m12 = [
 
 types = [m2, m3, m4, m6, m8, m10, m12];
 
+/* [Customize] */
+//Type of M series fastner
+customizerType = m3; //[m2,m3,m4 m6,m8,m10,m12]
+// Length of Bolt
+customizerLen = 10; //[1:40] 
 
 module mNut(size = m3, center = true, tolerance = 0) {
   fastnerType = size;
@@ -289,7 +308,7 @@ module mWasher(size = m3, tolerance = 0) {
 }
 
 
-module tSlot(size = m3, material = 3, bolt = 15, tolerance = .5) {
+module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5) {
   fastnerType = size;
   t = tolerance; 
   // lookup values
@@ -346,42 +365,79 @@ module demo() {
   }
 }
 
+module simpleDemo() {
+  fastnerType = customizerType;
+  boltDiaL = lookup(boltDia, fastnerType);
+  headHexThickL = lookup(headHexThick, fastnerType);
+  boltNutL = lookup(boltNut, fastnerType);
+  boltNutMaxL = lookup(boltNutMax, fastnerType);
+  nutThickL = lookup(nutThick, fastnerType);
+  washerDiaL = lookup(washerDia, fastnerType);
+  washerThickL = lookup(washerThick, fastnerType);
+  socketHeadThickL = lookup(socketHeadThick, fastnerType);
+  socketDiaL = lookup(socketDia, fastnerType);
+  socketSizeL = lookup(socketSize, fastnerType);
+  
+  trans = washerDiaL*1.5;
+  
+  color("blue")
+    mBolt(size = fastnerType, len = customizerLen);
+
+  translate([trans, 0, 0])
+    color("red")
+    mBolt(size = fastnerType, style = "hex", len = customizerLen);
+  
+  translate([trans*2, 0, 0])
+    color("green")
+    mNut(size = fastnerType);
+
+  translate([trans*3, 0, 0])
+    color("orange")
+    mWasher(size = fastnerType);
+  
+  translate([trans*4+15, 0, 0])
+    tSlotDemo();
+}
+
 module tSlotDemo() {
   thick = 3; // material thickness
-  sheet = [30, 50, thick];
+  sheet = [30, 20, thick];
   tol = 0.5; // tolerance
 
   difference() {
     color("blue")
       cube(sheet, center = true);
-    translate([0, 25-4.6, 0])
+    translate([0, 10-4.6, 0])
       tSlot(size = m3, material = thick, bolt = 10, tolerance = tol);
   }
   
   difference() {
     color("yellow")
-      translate([0, 25+3/2, 0])
+      translate([0, 10+3/2, 0])
       cube([30, thick, 25], center=true);
-    translate([0, 25-4.6+thick])
+    translate([0, 10-4.6+thick])
       rotate([-90, 0, 0])
       mBolt(m3, len = 10, tolerance = 0.1);
   }
 
-  translate([0, 25-4.6+thick-tol, 0])
+  translate([0, 10-4.6+thick-tol, 0])
     rotate([-90, 0, 0])
     color("silver")
     mBolt(m3, len = 10, tolerance = 0.01);
 
-  translate([0, 25-4.6, 0])
+  translate([0, 10-4.6, 0])
     rotate([-90, 30, 0])
     color("gray")
     mNut(m3);
 
 }
 
-demo();
+simpleDemo();
+//demo();
 //mWasher(m10);
 //mNut(m3);
+//mBolt(m3);
+//mBolt(size = m3, style = "hex");
 //mBolt(m3, tolerance = 0.02, center = false, style = "hex", len = 15);
 //mBolt(m3, tolerance = 0.05, center = true, len = 6);
 //tSlot(size = m3, bolt = 10);
