@@ -197,9 +197,14 @@ types = [m2, m3, m4, m6, m8, m10, m12];
 
 /* [Customize] */
 //Type of M series fastner
-customizerType = m3; //[m2,m3,m4 m6,m8,m10,m12]
+typeMeta = 1; //[0:m2,1:m3,2:m4,3:m6,4:m8,5:m10,6:m12]
 // Length of Bolt
 customizerLen = 10; //[1:40] 
+
+/*[Hidden]*/
+customizerType = types[typeMeta];
+
+echo (typeMeta, customizerType);
 
 module mNut(size = m3, center = true, tolerance = 0) {
   fastnerType = size;
