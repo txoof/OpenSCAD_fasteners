@@ -373,7 +373,7 @@ module mBolt2D(size = m3, center = true, tolerance = 0, v = false) {
   //socketSizeL = lookup(socketSize, fastnerType);
 
   $fn = 72;
-  circle(r = boltDiaL/2 + t, h = len, center = center );
+  circle(r = boltDiaL/2 + t, center = center );
   if (v) { // add verbose output for debugging
     echo ("type M", boltDiaL);
   }
