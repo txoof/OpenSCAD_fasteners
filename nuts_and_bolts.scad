@@ -436,7 +436,7 @@ module mWasher2D(size = m3, tolerance = 0, v = false) {
   }
 }
 
-
+// This is a mess
 module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false, 
             node = true) {
   fastenerType = size;
@@ -475,6 +475,7 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false,
   }
 }
 
+/*
 // useful for working with 2 dimensional objects
 module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false, node = true) {
   fastenerType = size;
@@ -506,32 +507,80 @@ module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false, n
     echo("nut thickness: ", nutThickL+t);
   }
 }
+*/
 
-module tSlot2Dn(size = m3, material = 3, bolt = 10, tolerance = 0.5, 
+
+//useful for working with 2D shapes
+module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5, 
                 v = false, node =true) {
+  fastenerType = size;
+  t = tolerance; 
 
+  // lookup values
+  boltDiaL = lookup(boltDia, fastenerType);
+  boltNutL = lookup(boltNut, fastenerType);
+  boltNutMaxL = lookup(boltNutMax, fastenerType);
+  nutThickL = lookup(nutThick, fastenerType);
+
+  boltSlot = bolt + t; // length of bolt slot
+
+  nutTh = nutThickL + t; // bolt thickness plus tolerance
+
+  union() {
+    translate([0, -t/2, 0])
+      square([boltDiaL, boltSlot], center=true); 
+    translate([0, -bolt/2+nutTh*1.25, 0])
+      square([boltNutL, nutTh], center = true);
+  }
 }
 
 
-//sheet = [40, 30];
-//cut = [10, 3];
-//difference() {
-//  square(sheet);
-//  translate([sheet[0]/2-cut[0]/2, sheet[1]-cut[1], 0])
-//    square(cut);
-//  #tSlot2D(material = 0, bolt = 10);
-//}
+module tSlotDemo() {
+  cut = [10, 3];
+  tab = [cut[0], cut[1]+cut[1]/2, cut[1]];
+
+  cutSheet = [40, 30];
+  tabSheet = [cutSheet[0], cutSheet[1] - cut[1], cut[1]];
 
 
+
+  linear_extrude(height = cut[1], center = true)
+  color("yellow")
+  difference() {
+    square(cutSheet);
+    translate([cutSheet[0]/2-cut[0]/2, cutSheet[1]-cut[1], 0])
+      square(cut);
+    translate([cutSheet[0]/2, cutSheet[1]-10/2, ])
+      tSlot2D(material = 0, bolt = 10);
+  }
+
+  //linear_extrude(height = cut[1], center =true)
+  color("blue")
+  translate([0, cutSheet[1], -tabSheet[1]-cut[1]/2])
+  rotate([90, 0, 0])
+  union() {
+    cube(tabSheet);
+    difference() {
+      translate([tabSheet[0]/2, tabSheet[1]+tab[1]/2, cut[1]/2])
+        cube(tab, center = true);
+      translate([cutSheet[0]/2, cutSheet[1]-1.5, 0])
+        mBolt(tolerance = 0.1);
+    }
+  }
+
+  translate([cutSheet[0]/2, cutSheet[1]-10/2, 0])
+    rotate([-90, 0, 0])
+    tSlotFit();
+
+}
 
 // nut and bolt pair set to tSlot dimensions for checking fit
-module tSlotFit(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false,
+module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
             node = true) {
 
   if (v) {
     echo("tSlotFit");
   }
-
 
   fastenerType = size;
   nutThickL = lookup(nutThick, fastenerType);
@@ -540,12 +589,12 @@ module tSlotFit(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false,
   nutTh = nutThickL + tolerance;
 
   color("darkgray")
-    translate([0, boltSlot/2-nutThickL/2, 0])
-      rotate([-90, 0, 0])
-      mBolt(size = size, len = bolt, tolerance = -.01, v = v);
+    //rotate([-90, 0, 0])
+    mBolt(size = size, len = bolt, tolerance = -.01, v = v);
 
   color("slategray")
-    rotate([-90, 0, 0])
+    translate([0, 0, -bolt/2+nutTh*1.25])
+    //rotate([-90, 0, 0])
     mNut(size = size, v = v);
 
 
@@ -619,15 +668,15 @@ module simpleDemo() {
 }
 
 
-
+/*
 module tSlotDemo() {
   thick = 3; // material thickness
-  sheet = [30, 20, thick];
+  cutSheet = [30, 20, thick];
   tol = 0.5; // tolerance
 
   difference() {
     color("blue")
-      cube(sheet, center = true);
+      cube(cutSheet, center = true);
     translate([0, 10-4.6, 0])
       tSlot(size = m3, material = thick, bolt = 10, tolerance = tol);
   }
@@ -652,6 +701,7 @@ module tSlotDemo() {
     mNut(m3);
 
 }
+*/
 
 //simpleDemo();
 //demo();
