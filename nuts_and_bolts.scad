@@ -336,6 +336,7 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5) {
     cube([boltDiaL+t, boltSlot, material*2], center=true);
   echo("tslot total length:", boltSlot);
   echo("length above bolt:" , boltSlot-nutTh);
+  echo("nut thickness: ", nutThickL+t);
 }
 
 module demo() {
