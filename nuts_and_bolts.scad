@@ -205,7 +205,7 @@ customizerLen = 10; //[1:40]
 customizerType = types[typeMeta];
 
 
-module mNut(size = m3, center = true, tolerance = 0) {
+module mNut(size = m3, center = true, tolerance = 0, v = false) {
   fastnerType = size;
   t = tolerance; 
 
@@ -221,19 +221,18 @@ module mNut(size = m3, center = true, tolerance = 0) {
   socketDiaL = lookup(socketDia, fastnerType);
   socketSizeL = lookup(socketSize, fastnerType);
 
-  echo ("type M", boltDiaL);
   difference() {
     cylinder(center = center, r = boltNutMaxL/2 + t/2, h = nutThickL + t , $fn = 6);
     cylinder(center = true, r = boltDiaL/2 + t/2, h = nutThickL*3, $fn = 72);
 
- 
-  echo ("nut thickness:", nutThickL+t);
+  }
+  if (v) { 
+   echo ("type M", boltDiaL);
+    echo ("nut thickness:", nutThickL+t);
   }
 }
 
-//mNut();
-
-module mBolt(size = m3, len = 10, center = true, style = "socket", tolerance = 0) {
+module mNut2D(size = m3, center = true, tolerance = 0, v = false) {
   fastnerType = size;
   t = tolerance; 
 
@@ -249,7 +248,35 @@ module mBolt(size = m3, len = 10, center = true, style = "socket", tolerance = 0
   socketDiaL = lookup(socketDia, fastnerType);
   socketSizeL = lookup(socketSize, fastnerType);
 
-  echo ("type M", boltDiaL);
+  difference() {
+    circle(center = center, r = boltNutMaxL/2 + t/2, $fn = 6);
+    circle(center = true, r = boltDiaL/2 + t/2, $fn = 72);
+
+  }
+  if (v) { 
+   echo ("type M", boltDiaL);
+    echo ("nut thickness:", nutThickL+t);
+  }
+}
+
+
+module mBolt(size = m3, len = 10, center = true, style = "socket", 
+            tolerance = 0, v = false) {
+  fastnerType = size;
+  t = tolerance; 
+
+  // lookup values
+  boltDiaL = lookup(boltDia, fastnerType);
+  headHexThickL = lookup(headHexThick, fastnerType);
+  boltNutL = lookup(boltNut, fastnerType);
+  boltNutMaxL = lookup(boltNutMax, fastnerType);
+  nutThickL = lookup(nutThick, fastnerType);
+  washerDiaL = lookup(washerDia, fastnerType);
+  washerThickL = lookup(washerThick, fastnerType);
+  socketHeadThickL = lookup(socketHeadThick, fastnerType);
+  socketDiaL = lookup(socketDia, fastnerType);
+  socketSizeL = lookup(socketSize, fastnerType);
+
   $fn = 72;
   socketRad = (socketSizeL/2)/sin(60); // socket hole diameter
   headRad = boltNutMaxL/2;
@@ -267,9 +294,12 @@ module mBolt(size = m3, len = 10, center = true, style = "socket", tolerance = 0
             cylinder(r = socketRad, h = socketHeadThickL*.75, center = true, $fn = 6);
         }
 
-      echo ("total length:", len + socketHeadThickL);
-      echo ("head thickness:", socketHeadThickL);
-      echo ("bolt length:", len);
+      if (v) { // add verbose output for debugging
+        echo ("type M", style, boltDiaL);
+        echo ("total length:", len + socketHeadThickL);
+        echo ("head thickness:", socketHeadThickL);
+        echo ("bolt length:", len);
+      }
     }
     
     if (style == "hex") {
@@ -277,9 +307,12 @@ module mBolt(size = m3, len = 10, center = true, style = "socket", tolerance = 0
       translate([0, 0, centerTranslate+headHexThickL/2])
         cylinder(h = headHexThickL, r = headRad, center = true, $fn = 6);
 
-      echo ("total length:", len + headHexThickL + t);
-      echo ("head thickness:", headHexThickL);
-      echo ("bolt length:", len);
+      if (v) { // add verbose output for debugging
+        echo ("type M", style, boltDiaL);
+        echo ("total length:", len + headHexThickL + t);
+        echo ("head thickness:", headHexThickL);
+        echo ("bolt length:", len);
+      }
 
 
     }
@@ -288,7 +321,34 @@ module mBolt(size = m3, len = 10, center = true, style = "socket", tolerance = 0
 }
 
 
-module mWasher(size = m3, tolerance = 0) {
+
+module mBolt2D(size = m3, len = 10, center = true, style = "socket", 
+            tolerance = 0, v = false) {
+  fastnerType = size;
+  t = tolerance; 
+
+  // lookup values
+  boltDiaL = lookup(boltDia, fastnerType);
+  headHexThickL = lookup(headHexThick, fastnerType);
+  boltNutL = lookup(boltNut, fastnerType);
+  boltNutMaxL = lookup(boltNutMax, fastnerType);
+  nutThickL = lookup(nutThick, fastnerType);
+  washerDiaL = lookup(washerDia, fastnerType);
+  washerThickL = lookup(washerThick, fastnerType);
+  socketHeadThickL = lookup(socketHeadThick, fastnerType);
+  socketDiaL = lookup(socketDia, fastnerType);
+  socketSizeL = lookup(socketSize, fastnerType);
+
+  $fn = 72;
+  circle(r = boltDiaL/2 + t, h = len, center = center );
+  if (v) { // add verbose output for debugging
+    echo ("type M", boltDiaL);
+  }
+
+}
+
+
+module mWasher(size = m3, tolerance = 0, v = false) {
   fastnerType = size; 
   t = tolerance; 
 
@@ -308,11 +368,41 @@ module mWasher(size = m3, tolerance = 0) {
     cylinder(r = washerDiaL/2+t/2, h = washerThickL+t, center = true, $fn = 36);
     cylinder(r = boltDiaL/2+t/2, h = washerThickL*3, center = true, $fn = 36);
   }
-  
+
+  if (v) {
+    echo("washer M", boltDia);
+    echo("thicknes, innerDia, outterDia:", washerThickL+t, boltDiaL+t, washerDiaL+t);
+  }
 }
 
+module mWasher2D(size = m3, tolerance = 0, v = false) {
+  fastnerType = size; 
+  t = tolerance; 
 
-module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5) {
+  // lookup values
+  boltDiaL = lookup(boltDia, fastnerType);
+  headHexThickL = lookup(headHexThick, fastnerType);
+  boltNutL = lookup(boltNut, fastnerType);
+  boltNutMaxL = lookup(boltNutMax, fastnerType);
+  nutThickL = lookup(nutThick, fastnerType);
+  washerDiaL = lookup(washerDia, fastnerType);
+  washerThickL = lookup(washerThick, fastnerType);
+  socketHeadThickL = lookup(socketHeadThick, fastnerType);
+  socketDiaL = lookup(socketDia, fastnerType);
+  socketSizeL = lookup(socketSize, fastnerType);
+
+  difference() {
+    circle(r = washerDiaL/2+t/2, center = true, $fn = 36);
+    circle(r = boltDiaL/2+t/2, center = true, $fn = 36);
+  }
+
+  if (v) {
+    echo("washer M", boltDia);
+    echo("innerDia, outterDia:", boltDiaL+t, washerDiaL+t);
+  }
+}
+
+module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false) {
   fastnerType = size;
   t = tolerance; 
   // lookup values
@@ -334,10 +424,43 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5) {
   cube([boltNutL+t, nutTh, material*2], center = true);
   translate([0, (boltSlot)/2-nutTh, 0])
     cube([boltDiaL+t, boltSlot, material*2], center=true);
-  echo("tslot total length:", boltSlot);
-  echo("length above bolt:" , boltSlot-nutTh);
-  echo("nut thickness: ", nutThickL+t);
+  
+  if (v) { // add output information for debugging
+    echo("tslot total length:", boltSlot);
+    echo("length above bolt:" , boltSlot-nutTh);
+    echo("nut thickness: ", nutThickL+t);
+  }
 }
+
+// useful for working with 2 dimensional objects
+module tSlot2D(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false) {
+  fastnerType = size;
+  t = tolerance;
+  // lookup values
+  boltDiaL = lookup(boltDia, fastnerType);
+  headHexThickL = lookup(headHexThick, fastnerType);
+  boltNutL = lookup(boltNut, fastnerType);
+  boltNutMaxL = lookup(boltNutMax, fastnerType);
+  nutThickL = lookup(nutThick, fastnerType);
+  washerDiaL = lookup(washerDia, fastnerType);
+  washerThickL = lookup(washerThick, fastnerType);
+  socketHeadThickL = lookup(socketHeadThick, fastnerType);
+  socketDiaL = lookup(socketDia, fastnerType);
+  socketSizeL = lookup(socketSize, fastnerType);  
+
+  boltSlot = bolt + t - material; // length of nut slot - material + tolerence
+  nutTh = nutThickL +t; //thickness of nut + tolerance
+
+  square([boltNutL+t, nutTh], center = true);
+  translate([0, (boltSlot)/2-nutTh,0])
+    square([boltDiaL+t, boltSlot], center = true);
+  if (v) { // add output information for debugging
+    echo("tslot total length:", boltSlot);
+    echo("length above bolt:" , boltSlot-nutTh);
+    echo("nut thickness: ", nutThickL+t);
+  }
+}
+
 
 module demo() {
   for (i = types) {
