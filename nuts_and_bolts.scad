@@ -81,7 +81,7 @@
     len = N, // total length of bolt to be used (default: 15)
     tolerence = N, // positive or negative number to add to the bolt size (def: 0.5)
     v = true/false, // add verbose output to help with debuging and use (def: true)
-    node = true/false // add nodes to relieve strain and prevent cracking (def: true)
+    node = R // positve real < 1; add nodes to relieve strain, cracking (def: 0.15)
   );
   
 
@@ -479,7 +479,10 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false,
 
 //useful for working with 2D shapes
 module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5, 
-                v = false, node =true) {
+                v = false, node = 0.15) {
+  if (node >= 1) {
+    echo("node value should be < 1; ideally around 0.1-0.2");
+  }
   fastenerType = size;
   t = tolerance; 
 
@@ -497,7 +500,12 @@ module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5,
     translate([0, -t/2, 0])
       square([boltDiaL, boltSlot], center=true); 
     translate([0, -bolt/2+nutTh*1.25, 0])
-      square([boltNutL, nutTh], center = true);
+      square([boltNutL+t, nutTh], center = true);
+
+    for (i = [-1, 1]) {
+      translate([i*(boltNutL+t)/2, 0, 0])
+        circle(r = nutTh*node, $fn = 72);
+    }
 
    }
   if (v) {
