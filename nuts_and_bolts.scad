@@ -77,8 +77,9 @@
     size = mX, // defined m bolt size (default: m3)
     material = N, // thickness of material in mm (default: 3)
     len = N, // total length of bolt to be used (default: 15)
-    tolerence = N // positive or negative number to add to the bolt size (def 0.5)
-    v = true/false // add verbose output to help with debuging and use
+    tolerence = N, // positive or negative number to add to the bolt size (def: 0.5)
+    v = true/false, // add verbose output to help with debuging and use (def: true)
+    node = true/false // add nodes to relieve strain and prevent cracking (def: true)
   );
   
 
@@ -435,7 +436,8 @@ module mWasher2D(size = m3, tolerance = 0, v = false) {
 }
 
 
-module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false) {
+module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false, 
+            node = true) {
   fastnerType = size;
   t = tolerance; 
   // lookup values
@@ -453,10 +455,17 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false) {
   boltSlot = bolt + t - material; // length of nut slot - material + tolerence
   nutTh = nutThickL + t; // thickness of nut + tolerence
 
-
-  cube([boltNutL+t, nutTh, material*2], center = true);
-  translate([0, (boltSlot)/2-nutTh, 0])
-    cube([boltDiaL+t, boltSlot, material*2], center=true);
+  union() {
+    cube([boltNutL+t, nutTh, material*2], center = true);
+    translate([0, (boltSlot)/2-nutTh, 0])
+      cube([boltDiaL+t, boltSlot, material*2], center=true);
+    if (node) {
+      for (i = [-1, 1]) {
+        translate([i*(boltNutL+t)/2, nutTh/2, 0])
+          cylinder(r = nutTh*.15, h = material*2, $fn = 72, center =true);
+      }
+    }
+  }
   
   if (v) { // add output information for debugging
     echo("tslot total length:", boltSlot);
@@ -466,7 +475,7 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false) {
 }
 
 // useful for working with 2 dimensional objects
-module tSlot2D(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false) {
+module tSlot2D(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false, node = true) {
   fastnerType = size;
   t = tolerance;
   // lookup values
@@ -484,9 +493,18 @@ module tSlot2D(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false) {
   boltSlot = bolt + t - material; // length of nut slot - material + tolerence
   nutTh = nutThickL +t; //thickness of nut + tolerance
 
-  square([boltNutL+t, nutTh], center = true);
-  translate([0, (boltSlot)/2-nutTh,0])
-    square([boltDiaL+t, boltSlot], center = true);
+  union() {
+    square([boltNutL+t, nutTh], center = true);
+    if (node) {
+      for (i = [-1, 1]) {
+        translate([i*(boltNutL+t)/2, nutTh/2, 0])
+          circle(r = nutTh*.15, $fn = 72);
+      }
+    }
+    translate([0, (boltSlot)/2-nutTh,0])
+      square([boltDiaL+t, boltSlot], center = true);
+  }
+
   if (v) { // add output information for debugging
     echo("tslot total length:", boltSlot);
     echo("length above bolt:" , boltSlot-nutTh);
@@ -606,3 +624,5 @@ module tSlotDemo() {
 //tSlot2D();
 //mWasher2D();
 //mNut2D();
+//tSlot2D();
+tSlot();
