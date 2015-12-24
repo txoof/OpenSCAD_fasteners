@@ -14,7 +14,7 @@
   https://github.com/openscad/openscad/issues/1528
 
   TODO:
-  * Add circular releif cuts in corners of tSlot to prevent cracking in acrylic
+  X Add circular releif cuts in corners of tSlot to prevent cracking in acrylic
 
   Usage:
   mBolt(
@@ -71,7 +71,8 @@
     len = N, // total length of bolt to be used (default: 15)
     tolerence = N // positive or negative number to add to the bolt size (def 0.5)
     v = true/false // add verbose output to help with debuging and use
-  );
+    node = true/false // add nodes to relieve strain and prevent cracking (def: true)
+);
 
   tSlot2D(
     size = mX, // defined m bolt size (default: m3)
@@ -625,4 +626,4 @@ module tSlotDemo() {
 //mWasher2D();
 //mNut2D();
 //tSlot2D();
-tSlot();
+//tSlot();
