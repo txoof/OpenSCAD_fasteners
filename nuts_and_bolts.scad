@@ -15,6 +15,7 @@
 
   TODO:
   X Add circular releif cuts in corners of tSlot to prevent cracking in acrylic
+  * fix tSlot - 3D version is a mess
 
   Usage:
   mBolt(
@@ -475,40 +476,6 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false,
   }
 }
 
-/*
-// useful for working with 2 dimensional objects
-module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false, node = true) {
-  fastenerType = size;
-  t = tolerance;
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  boltNutL = lookup(boltNut, fastenerType);
-  boltNutMaxL = lookup(boltNutMax, fastenerType);
-  nutThickL = lookup(nutThick, fastenerType);
-
-  boltSlot = bolt + t - material; // length of nut slot - material + tolerence
-  nutTh = nutThickL +t; //thickness of nut + tolerance
-
-  union() {
-    square([boltNutL+t, nutTh], center = true);
-    if (node) {
-      for (i = [-1, 1]) {
-        translate([i*(boltNutL+t)/2, nutTh/2, 0])
-          circle(r = nutTh*.15, $fn = 72);
-      }
-    }
-    translate([0, (boltSlot)/2-nutTh,0])
-      square([boltDiaL+t, boltSlot], center = true);
-  }
-
-  if (v) { // add output information for debugging
-    echo("tslot total length:", boltSlot);
-    echo("length above bolt:" , boltSlot-nutTh);
-    echo("nut thickness: ", nutThickL+t);
-  }
-}
-*/
-
 
 //useful for working with 2D shapes
 module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5, 
@@ -531,6 +498,12 @@ module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5,
       square([boltDiaL, boltSlot], center=true); 
     translate([0, -bolt/2+nutTh*1.25, 0])
       square([boltNutL, nutTh], center = true);
+
+   }
+  if (v) {
+    echo("tSlot2D");
+    echo("bolt dia, bolt length, material thickness, tolerance:",
+        boltDiaL, bolt, material, tolerance);
   }
 }
 
