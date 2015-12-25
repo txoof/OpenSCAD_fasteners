@@ -620,7 +620,6 @@ module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
 
   
 }
-tSlotFit(v=true);
 
 module demo() {
   for (i = types) {
