@@ -478,7 +478,7 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false,
 
 
 //useful for working with 2D shapes
-module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = 0.5, 
+module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = .5, 
                 v = false, node = 0.15) {
   if (node >= 1) {
     echo("node value should be < 1; ideally around 0.1-0.2");
@@ -492,19 +492,19 @@ module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = 0.5,
   boltNutMaxL = lookup(boltNutMax, fastenerType);
   nutThickL = lookup(nutThick, fastenerType);
 
-  boltSlot = bolt + t; // length of bolt slot
+  boltSlot = bolt + 2*t - material; // length of bolt slot
 
   nutTh = nutThickL + t; // bolt thickness plus tolerance
 
   union() {
-    translate([0, -t/2, 0])
-      square([boltDiaL, boltSlot], center=true); 
+    translate([0, -t-material/2, 0])
+      square([boltDiaL, boltSlot], center=true);  // bolt slot
     translate([0, -bolt/2+nutTh*1.25, 0])
-      square([boltNutL+t, nutTh], center = true);
+      square([boltNutL+t, nutTh], center = true); // nut
 
     for (i = [-1, 1]) {
       translate([i*(boltNutL+t)/2, -bolt/2+nutThickL*2+t/2, 0])
-        #circle(r = nutTh*node, $fn = 72);
+        circle(r = nutTh*node, $fn = 72);
     }
 
    }
@@ -514,11 +514,6 @@ module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = 0.5,
         boltDiaL, bolt, material, tolerance);
   }
 }
-
-//tSlot2D(material = 3);
-//translate([0, 0, 5])
-//rotate([-90])
-//  tSlotFit();
 
 module tSlotDemo() {
   cut = [10, 3];
