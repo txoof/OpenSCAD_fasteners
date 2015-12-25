@@ -478,7 +478,7 @@ module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false,
 
 
 //useful for working with 2D shapes
-module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5, 
+module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = 0.5, 
                 v = false, node = 0.15) {
   if (node >= 1) {
     echo("node value should be < 1; ideally around 0.1-0.2");
@@ -503,8 +503,8 @@ module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5,
       square([boltNutL+t, nutTh], center = true);
 
     for (i = [-1, 1]) {
-      translate([i*(boltNutL+t)/2, 0, 0])
-        circle(r = nutTh*node, $fn = 72);
+      translate([i*(boltNutL+t)/2, -bolt/2+nutThickL*2+t/2, 0])
+        #circle(r = nutTh*node, $fn = 72);
     }
 
    }
@@ -515,6 +515,10 @@ module tSlot2D(size = m3, material = 3, bolt = 10, tolerance = 0.5,
   }
 }
 
+//tSlot2D(material = 3);
+//translate([0, 0, 5])
+//rotate([-90])
+//  tSlotFit();
 
 module tSlotDemo() {
   cut = [10, 3];
