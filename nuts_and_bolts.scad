@@ -515,6 +515,7 @@ module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = .5,
   }
 }
 
+
 module tSlotDemo() {
   cut = [10, 3];
   tab = [cut[0], cut[1]+cut[1]/2, cut[1]];
@@ -554,9 +555,11 @@ module tSlotDemo() {
 
 }
 
+tSlotFit(style = "hex");
+
 // nut and bolt pair set to tSlot dimensions for checking fit
 module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
-            node = true) {
+            node = true, style = "socket") {
 
   if (v) {
     echo("tSlotFit");
@@ -570,7 +573,7 @@ module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
 
   color("darkgray")
     //rotate([-90, 0, 0])
-    mBolt(size = size, len = bolt, tolerance = -.01, v = v);
+    mBolt(size = size, len = bolt, tolerance = -.01, v = v, style = style);
 
   color("slategray")
     translate([0, 0, -bolt/2+nutTh*1.25])
