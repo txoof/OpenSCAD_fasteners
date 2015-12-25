@@ -254,6 +254,13 @@ customizerLen = 10; //[1:40]
 /*[Hidden]*/
 customizerType = types[typeMeta];
 
+module typesHelp() {
+    echo ("available mX sizeses below:");
+    for (i = types) {
+      echo(i[0][1]);
+    }
+}
+
 
 module mNut(size = m3, center = true, tolerance = 0, v = false) {
   fastenerType = size;
@@ -277,10 +284,13 @@ module mNut(size = m3, center = true, tolerance = 0, v = false) {
 
   }
   if (v) { 
-   echo ("type M", boltDiaL);
+    echo ("M nut type:", boltDiaL);
     echo ("nut thickness:", nutThickL+t);
+    echo ("options: size, center, tolerance, v(erbosity)");
+    typesHelp();
   }
 }
+
 
 module mNut2D(size = m3, center = true, tolerance = 0, v = false) {
   fastenerType = size;
@@ -304,11 +314,11 @@ module mNut2D(size = m3, center = true, tolerance = 0, v = false) {
 
   }
   if (v) { 
-   echo ("type M", boltDiaL);
-    echo ("nut thickness:", nutThickL+t);
+    echo ("type M", boltDiaL);
+    echo ("options: size, center, tolerance, v(erbosity)");
+    typesHelp();
   }
 }
-
 
 module mBolt(size = m3, len = 10, center = true, style = "socket", 
             tolerance = 0, v = false) {
@@ -368,6 +378,11 @@ module mBolt(size = m3, len = 10, center = true, style = "socket",
     }
   }
 
+  if (v) {
+    echo ("options: size, len, center, style, tolerance, v(erbosity)");
+    typesHelp();
+  }
+  
 }
 
 
@@ -392,6 +407,8 @@ module mBolt2D(size = m3, center = true, tolerance = 0, v = false) {
   circle(r = boltDiaL/2 + t, center = center );
   if (v) { // add verbose output for debugging
     echo ("type M", boltDiaL);
+    echo ("options: size, center, tolerance, v(erbosity)");
+    typesHelp();
   }
 
 }
@@ -420,6 +437,8 @@ module mWasher(size = m3, tolerance = 0, v = false) {
   if (v) {
     echo("washer M", boltDia);
     echo("thicknes, innerDia, outterDia:", washerThickL+t, boltDiaL+t, washerDiaL+t);
+    echo("options: size, tolerance, v(erbosity)");
+    typesHelp();
   }
 }
 
@@ -447,8 +466,11 @@ module mWasher2D(size = m3, tolerance = 0, v = false) {
   if (v) {
     echo("washer M", boltDia);
     echo("innerDia, outterDia:", boltDiaL+t, washerDiaL+t);
+    echo("options: size, tolerance v(erbosity)");
+    typesHelp();
   }
 }
+
 
 // This is a mess
 module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false, 
@@ -525,9 +547,10 @@ module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = .5,
     echo("tSlot2D");
     echo("bolt dia, bolt length, material thickness, tolerance:",
         boltDiaL, bolt, material, tolerance);
+    echo("options: size, material, bolt, tolerance, v(erbosity, node)");
+    typesHelp();
   }
 }
-
 
 module tSlotDemo() {
   cut = [10, 3];
@@ -575,6 +598,8 @@ module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
 
   if (v) {
     echo("tSlotFit");
+    echo("options: size, material, bolt, tolerance, v(erbosity), node, style")
+    typesHelp();
   }
 
   fastenerType = size;
@@ -595,7 +620,7 @@ module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
 
   
 }
-
+tSlotFit(v=true);
 
 module demo() {
   for (i = types) {
