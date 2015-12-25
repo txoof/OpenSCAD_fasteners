@@ -66,6 +66,7 @@
   nut FLATS. This shold make it easy to slot in a nut, but it should not be able
   to spin to make tightening easier.
 
+  // create a tSlot using 3D elements 
   tSlot(
     size = mX, // defined m bolt size (default: m3)
     material = N, // thickness of material in mm (default: 3)
@@ -75,6 +76,7 @@
     node = true/false // add nodes to relieve strain and prevent cracking (def: true)
 );
 
+  // create a tSlot using 2D elements for working with 2D shpaes
   tSlot2D(
     size = mX, // defined m bolt size (default: m3)
     material = N, // thickness of material in mm (default: 3)
@@ -84,6 +86,17 @@
     node = R // positve real < 1; add nodes to relieve strain, cracking (def: 0.15)
   );
   
+
+  This module creates a bolt and nut pair that fits into a tSlot for checking 
+  alignment in a working model.  
+  tSlotFit(
+    size = mX, // defined m bolt size (default: m3)
+    material = N, // thickness of material in mm (default: 3)
+    len = N, // total length of bolt to be used (default: 15)
+    tolerence = N, // positive or negative number to add to the bolt size (def: 0.5)
+    v = true/false, // add verbose output to help with debuging and use (def: true)
+    style = "socket"/"hex" // socke
+  );
 
 */
 
@@ -555,7 +568,6 @@ module tSlotDemo() {
 
 }
 
-tSlotFit(style = "hex");
 
 // nut and bolt pair set to tSlot dimensions for checking fit
 module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
