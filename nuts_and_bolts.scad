@@ -7,7 +7,7 @@ customHead = "socket"; //[hex, flatSocket, flatHead, conical, socket, set, grub]
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
+bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
 
 // try these:
 
@@ -383,12 +383,6 @@ module thread(size = defaultSize, length = 10, threadType = "metric",
   }
 }
 
-/*
-bolt_head(v = true, tolerance = 0, head = "button", quality = 34);
-translate([0, m[3][4]/2, 0])
-color("red")
-cylinder(r = m[3][4]/2, h = m[3][5]*1.5, $fn = 24);
-*/
 
 // draw a head of the specified type
 module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 0, 
@@ -496,18 +490,6 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
 
   // don't do anything for type grub
 
-/*
-  if (head == "button") {
-    headRadius = (size[4]+tolerance)/2;
-
-    difference() {
-      sphere(r = headRadius, $fn = quality);  
-      translate([0, 0, -headRadius])
-        #cube(headRadius*2, center = true);
-    }
-
-  }
-*/
 }
 
 module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metric", 
