@@ -302,21 +302,22 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
 metric_fastener = [
   ["name", "thread diameter", "hex head thickess", "hex head & nut size", 
   "socket head diameter", "socket head thickness", "socket tool size", 
-  "nut thickness,", "pitch", "washer thickness", "washer diameter"] , 
+  "nut thickness,", "pitch", "washer thickness", "washer diameter",
+  "button thickness"] , 
   // M0 - field descriptors place holder in array
 
   ["M1 - UNDEFINED"], // M1
 
   ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5], // M2
-  ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7], // M3
-  ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9], // M4
+  ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7, 1.04], // M3
+  ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9, 1.3], // M4
   //["M5 BOGUS", 5, 3, 8, 9, 5, 4, 4, .8, .9, 10],
   ["M5 - UNDEFINED"],
-  ["M6 Bolt, Nut & Washer", 6, 4, 10, 10, 6, 5, 5, 1, 1.6, 12],
+  ["M6 Bolt, Nut & Washer", 6, 4, 10, 10, 6, 5, 5, 1, 1.6, 12, 2.08],
   ["M7 - UNDEFINED"],
-  ["M8 Bolt, Nut & Washer", 8, 5.5, 13, 13, 8, 6, 6.5, 1.25, 2, 17],
+  ["M8 Bolt, Nut & Washer", 8, 5.5, 13, 13, 8, 6, 6.5, 1.25, 2, 17, 2.6],
   ["M9 - UNDEFINED"],
-  ["M10 Bolt, Nut & Washer", 10, 7, 17, 16, 10, 8, 8, 1.5, 2, 21]
+  ["M10 Bolt, Nut & Washer", 10, 7, 17, 16, 10, 8, 8, 1.5, 2, 21, 3.12]
 
 ];
 
@@ -383,12 +384,13 @@ module thread(size = defaultSize, length = 10, threadType = "metric",
   }
 }
 
-/*
-bolt_head(v = true, tolerance = 0, head = "button", quality = 34);
+
+bolt_head(v = true, tolerance = 0, head = "button", quality = 24);
 translate([0, m[3][4]/2, 0])
 color("red")
-cylinder(r = m[3][4]/2, h = m[3][5]*1.5, $fn = 24);
-*/
+cylinder(r = m[3][4]/2, h = m[3][11], $fn = 24);
+
+//list_types(m);
 
 // draw a head of the specified type
 module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 0, 
@@ -400,7 +402,7 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
   o = 0.001; // overage to make cuts complete
 
   // list available heads here
-  headTypes = ["conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket" ]; 
+  headTypes = ["button", "conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket" ]; 
   
 
   if (list) {
@@ -496,18 +498,28 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
 
   // don't do anything for type grub
 
-/*
+
   if (head == "button") {
-    headRadius = (size[4]+tolerance)/2;
+    c = size[4]; // chord length
+    f = size[11]; // height of button 
+
+    //headRadius = ((pow(c,2)/4)-pow(f,2))/2*f;
+    // r = radius of sphere that will be difference'd to make the button
+    r = ( pow(c,2)/4 + pow(f,2) )/2*f;
+
+    d = r - f; // displacement to move sphere
 
     difference() {
-      sphere(r = headRadius, $fn = quality);  
-      translate([0, 0, -headRadius])
-        #cube(headRadius*2, center = true);
-    }
+      translate([0, 0, -d])
+      sphere(r = r, $fn = quality);  
+      translate([0, 0, -r])
+        cube(r*2, center = true);
+      translate([0, 0, f])
+      cylinder(r = hexRadius(size[6]), h = f, $fn = 6);
+      
+    } // end difference
+  } // end if button
 
-  }
-*/
 }
 
 module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metric", 
