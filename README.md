@@ -1,75 +1,273 @@
-Replacement library for the OpenSCAD MCAD nuts_and_bolts.scad library.
+  Create nuts, bolts, washers, tslots 
 
-Aaron Ciuffo
-23 December 2015
+  Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
+  Reach me also at gmail: aaron.ciuffo
+
+  These fasteners are close aproximations to the ISO standards, but in many cases
+  are fudged.  Most notably the thread algorithm is not at all ISO compliant.  
+
+  Revision of http://www.thingiverse.com/thing:1220331/edit
+
+  Based heavily on http://www.thingiverse.com/thing:965737 by biomushroom
+
+  Thread algorithm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
+
+  
+
+  ISSUES:
+    * only metric threads have been implemented
+    * grub/set screws do not have socket heads
+    * nodes do not work properly for sizes above M4
+    * button head size is a bit of a fudge. 
+
+  TODO:
+    * add socket to grub screws
+    * add button-head bolts with hex drive
 
 
-Import this library into your OpenSCAD design:
-```
-include </path/to/libraries/nuts_and_bolts.scad>
-mBolt(m3);
-```
+#### How To Use:
 
-Because of the lookup functions you will need to use `import` instead of `use`. Make sure you comment out the `simpleDemo()` line as well.
+  * Download this script 
+  * comment out the bolt() call
+  * add the following line to your script:
+  ```
+  include </path/to/script/nuts_and_bolts.scad>
+  ```
+  * see below for specifics
 
-This library provides metric series fasteners in the following sizes: 2, 3, 4, 6, 8, 10, 12.  Additional sizes can be added easily.
 
-The following fasteners are provided:
-* M Bolts with hex socket and hex heads
-* M Nuts (standard only, no thin)
-* M Washers
-* [T - Slot](https://www.google.com/search?q=t-slot+laser+cut&espv=2&biw=1344&bih=1318&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiftoyW-vHJAhXKmHIKHdtNBQkQ_AUIBigB&dpr=1) cutouts for laser cut joints
+#### Available Nut, Bolt, Washer array sets:
+  * metric_fasteners (alias: m)
+    - sizes: 2, 3, 4, 6, 8, 10
 
-#### NOTES
-* This is **NOT** a drop in replacement for the MCAD library, but rather an extension with  more features
-*Use the `tolerance = +0.X` to use the bolt and nut modules for cutting holes or making slots for bolt heads and captive nuts
-* OpenSCAD 2015.03-2 crashes *HARD* if the called m bolt size does not exist due
-  to a bug in the lookup() function. A bug report has been filed and should be fixed
-  in the next release: https://github.com/openscad/openscad/issues/1528
+   
 
-```
-mBolt(
-    size = mX, // defined m bolt size (default: m3)
-    len = N, // length of bolt shaft (default: 10)
-    center = true/false, // center the shaft (not including the head) (default: true)
-    style = "socket"/"hex" // default is socket drive (default: socket)
-    tolerance = N // positve or negative number to add to the shaft diameter (def: 0)
-);
+#### bolt(size = fastener_type[index], head = "<type\>", length = N\*, threadType = "type", quality = N, tolerance = R, list = true/false, center = true/false, v = true/false);
 
-mNut(
-    size = mX, // defined m bolt size (default: m3)
-    center = true/false // center the nut (default: true)
-    tolerance = N // positive or negative number to add to the hole and body diameter
-);
+  **draw a predefined bolt from fastener_type array**
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * head = "button", "hex", "flatSocket"/"flatHead", "conical", "socket", "grub"/"set"
+    - default: socket
+  * length = thread length - \*in the case of a flat-head socket, the TOTAL length
+    - default: 10
+  * threadType = "metric", "none"
+    - default: metric
+  * quality = N - N = number of curve segments (integer)
+    - default: 32
+  * tolerance = R - R = amount to increase/decrease all dimensions other than length
+  * list = true/false - list the available types
+  * center = true/false - center the length of the THREADS excluding head
+  * v = true/false - verbose echo for debugging
 
-mWasher(
-    size = mX, // defined m bolt size (default m3)
-    tolerance = N // positive or negative number to add to the inner and outer diameter
-);
+##### Examples:
+  ```
+  //M4 x 15mm
+  bolt(size = metric_fastner[4], length = 15);
+  ```
+  ```
+  //M3 x 6 No thread
+  bolt(size = metric_fastener[3], length = 6, threadType = "none");
+  ```
 
-This module creates a t-shaped slot for making perpendicular joints in laser cut objects. By default the bolt slot is 0.5mm larger than the distance across the nut FLATS. This shold make it easy to slot in a nut, but it should not be able to spin to make tightening easier.
 
-tSlot(
-    size = mX, // defined m bolt size (default: m3)
-    material = N, // thickness of material in mm (default: 3)
-    len = N, // total length of bolt to be used (default: 15)
-    tolerence = N // positive or negative number to add to the bolt size (def 0.5)
-);
-```
-####Examples:
-```
-mWasher(m10);
-mNut(m3);
-mBolt(m3);
-mBolt(size = m3, style = "hex");
-mBolt(m3, tolerance = 0.02, center = false, style = "hex", len = 15);
-mBolt(m3, tolerance = 0.05, center = true, len = 6);
-tSlot(size = m3, bolt = 10);
-```
+####  nut(size = fastener_type[index], threadType = thread type, quality = N, list = false, quality = N, center = false, v = false);
+  **draw a predefined nut from fastener_type array**
+  * size = metric_fastener[index] - see the fastener_type array below
+  - default: M3
+  * quality = N - N = number of curve segments (integer)
+  - default: 32
+  * center = true/false - center the object    
+  * v = true/false - verbose echo for debugging
 
-####Demos:
-```
-tSlotDemo();
-demo();
-simpleDemo();
-```
+##### Examples:
+  ```
+  //M4 Nut
+  nut(metric_fastener[4]);
+  ```
+
+  ```
+  //M3 Nut - low resolution
+  nut(metric_fastener[4], quality = 15);
+  ```
+
+
+#### washer(size =fastener_type[index] , quality = N, , tolerance = R, quality = N, center = false, v = false)
+  **draw a predefined washer from fastener_type array**
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * quality = N - N = number of curve segments (integer)
+    - default: 32
+  * tolerance = R - total amount to add or subtract from the washer dimensions
+    - default: 0.2
+  * center = true/false - center the length of the THREADS excluding head
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M10 washer
+  washer(metric_fastener[10]);
+  ```
+
+  ```
+  //M3 washer, +0.4 tolerance
+  washer(metric_fastener[3], tolerance = 0.4);
+  ```
+
+
+#### boltHole(size = fastener_type[index], length = N, quality = N, tolerance = R, quality =N, 2d = true/false, center = true/false, v = true/false)
+  **draw a predefined bolt hole from fastener_type array**
+  * size = metric_fastener[index] + tolerance - see the fastener_type array below
+    - default: M3
+  * length = N - N = length of bolt hole 
+    - default: 10
+  * quality = N - N = number of curve segments (integer)
+    - default: 32
+  * tolerance = R - total amount to add or subtract from the washer dimensions
+    - default: 0
+  * quality = N - N = number of curve segments (integer)
+    - default: 24
+  * 2d = true/false - true for working with 2 dimensional objects
+    - default: false
+  * center = true/false - center the length of the THREADS excluding head
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M3 hole +0.3 tolerance through 3mm material
+  mat = 10;
+  thick = 3;
+  difference() {
+    cube([mat, mat, thick], center = true);
+    #boltHole(size = metric_fastener[3], tolerance = 0.3, center = true);
+  }
+  ```
+
+
+#### nutHole(size = fastener_type[index], tolerance = R, 2d = true/false, center = true/false, v = true/false);
+  **draw a predefined nut for making negative spaces based on fastener_type array**
+    - this is useful for creating spaces for captive nuts
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * tolerance = R - total amount to add or subtract from the nut dimensions
+    - default: 0.2
+  * 2d = true/false - true for working with 2 dimensional objectsa
+    - default: false
+  * center = true/false - center the object
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M2 Nut hole in 3mm material with +0.7 tolerance 
+  mat = 10;
+  thick = 3; 
+  nutThick = 2.09; //the nut thicknes can be found using the v = true option 
+
+  difference() {
+    cube([mat, mat, thick], center = true);
+    translate([0, 0, thick/2-nutThick])   
+    nutHole(size = metric_fastener[2], tolerance = 0.7, v = true);
+  }
+
+  color("silver")
+  translate([0, 0, thick/2 - 1.6/2])
+  nut(metric_fastener[2], v = true, center = true);  
+  ```
+
+#### washerHole(size = fastener_type[index], tolerance = R, 2d = true/false, center = true/false, v = true/false);
+  **draw a predefined washer for making negative spaces based on fastener_type array**
+    - this is useful for creating spaces for captive washers
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * tolerance = R - total amount to add or subtract from the washer dimensions
+    - default: 0.2
+  * quality = N - N = number of curve segments (integer)
+    - default: 24
+  * 2d = true/false - true for working with 2 dimensional objects
+    - default: false
+  * center = true/false - center the object
+  * v = true/false - verbose echo for debugging
+
+
+#### tSlot(size = fastener_type[index], material = N, length = N, tolerance = R, node = P, 2d = true/false, v = true/false);
+  **draw a T-Slot for making cutouts using  CNC or laser cutter**
+  - T-Slot example: https://planiverse.wordpress.com/2014/04/07/construction-technique-tab-and-slot-with-t-nut/
+    - Nodes: http://blog.ponoko.com/2010/06/17/how-to-make-snug-joints-in-acrylic/
+  * size = metric_fastener[index] - see the fastener_type array belowa
+    - default: M3
+  * material = N - thickness of material the bolt goes through (see the demo)
+    - default: 3
+  * length = N - length of bolt
+    - default: 10
+  * tolerance = R - total amount to add or subtract from the nut dimensions
+    - default: 0.2
+  * node = P - node size as percentage of nut thickness
+    - default: 0.15
+  * 2d = true/false - true for working with 2 dimensional objects
+    - default: false 
+
+#### tSlotBolt(size = fastner_type[index], length = N, head = "head type", threadType = "type", quality = N, v = true/false);
+  **draw a bolt with a nut attached in appropriate position for a tSlot**
+    - This is useful for visualizing the tSlot placement
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * length = N - length of bolt
+    - default: 10
+  * head = "head type" - socket, hex, conical, set, flatHead (try list = true to see all types)
+    - default: socket
+  * threadType = "thread type" - metric, none (try list = true to see all types)
+    - default: none
+  * quality = N - N = number of curve segments (integer); if quality is set < 24 simpler forms of bolts will be used
+    - default: 24
+  * v = true/false - verbose echo for debugging
+
+
+#### list_types(fastener_type); 
+
+  **List all available sizes within a fasnter type**
+  * array_name = predefined array containing bolt information in metric
+
+  list_types(metric_fastener);
+  Output is as follows:
+  ECHO: "name: M1 - UNDEFINED"
+  ECHO: "array_index[1]"
+  ECHO: "============================="
+  ECHO: "name: M2 Bolt, Nut & Washer"
+  ECHO: "array_index[2]"
+  ECHO: "     [1] thread diameter: 2"
+  ECHO: "     [2] hex head thickess: 2"
+  ECHO: "     [3] hex head & nut size: 4"
+  ECHO: "     [4] socket head diameter: 3.5"
+  ECHO: "     [5] socket head thickness: 2"
+  ECHO: "     [6] socket tool size: 1.5"
+  ECHO: "     [7] nut thickness,: 1.6"
+  ECHO: "     [8] pitch: 0.4"
+  ECHO: "     [9] washer thickness: 0.3"
+  ECHO: "     [10] washer diameter: 5.5"
+  ECHO: "============================="
+
+#### fastener_type array
+  **predefined array of fastener sizes based on ISO threads**
+    - array is zero-indexed; element[0] contains human readable descriptions
+    - measurements based on the following sources:
+  * http://www.roymech.co.uk/Useful_Tables/Screws/Hex_Screws.htm
+  * http://www.numberfactory.com/nf%20metric%20screws%20and%20bolts.htm
+    - elements are arranged in increasing size 
+    - for metric sizes, M3 is indexed [3], M4 is indexed [4], etc.
+
+##### array descriptors 
+  * name - human readable name: M3 Bolt, 1/2 inch Bolt
+  * thread diameter - diameter of threaded bolt
+  * hex head thickness - overall thickness of hex head
+  * hex head & bolt size - distance across flats, wrench size needed
+  * socket head diameter - diameter of rounded socket head
+  * socket head thickness - overall thickness of socket head
+  * socket tool size - size of hex socket tool needed
+  * nut thickness - standard thickness
+  * pitch - ISO thread pitch value (not implemented yet)
+  * washer thickness - thickness of washer
+  * washer diameter - diameter of washer
+
+*/
+
+
