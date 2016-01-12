@@ -60,7 +60,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
     - default: M3
   * head = "hex", "flatSocket"/"flatHead", "conical", "socket", "grub"/"set"
     - default: socket
-  * length = thread length - \*in the case of a flat head socket, the TOTAL length
+  * length = thread length - \*in the case of a flat-head socket, the TOTAL length
     - default: 10
   * threadType = "metric", "none"
     - default: metric
@@ -227,9 +227,9 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
     - default: M3
   * length = N - length of bolt
     - default: 10
-  * head = "head type" - socket, hex, conical, set, flatHead (try v = true to see all types)
+  * head = "head type" - socket, hex, conical, set, flatHead (try list = true to see all types)
     - default: socket
-  * threadType = "thread type" - metric, none (try v = true to see all types)
+  * threadType = "thread type" - metric, none (try list = true to see all types)
     - default: none
   * quality = N - N = number of curve segments (integer); if quality is set < 24 simpler forms of bolts will be used
     - default: 24
@@ -370,6 +370,12 @@ module thread(size = defaultSize, length = 10, threadType = "metric",
   }
 }
 
+/*
+bolt_head(v = true, tolerance = 0, head = "button", quality = 34);
+translate([0, m[3][4]/2, 0])
+color("red")
+cylinder(r = m[3][4]/2, h = m[3][5]*1.5, $fn = 24);
+*/
 
 // draw a head of the specified type
 module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 0, 
@@ -381,7 +387,7 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
   o = 0.001; // overage to make cuts complete
 
   // list available heads here
-  headTypes = ["conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket"]; 
+  headTypes = ["conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket", "button"]; 
   
 
   if (list) {
@@ -395,21 +401,23 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
   head = checkType(head, headTypes) == [[]] ? defaultHead : head;
 
   if (head == "socket") { // hex socket head
-    // unsure about these calculations - minkowski adds some height to the head
-    headThick = size[5]-(3/16 * size[5])+tolerance;
+    // minkwoski() adds 2*sphere radius to the head adjust variables to deal with this
+    headThick = size[5]-(1/8 * size[4])+tolerance;
     headRad = (size[4] + tolerance)/2;
-    
-    // move the head to the origin - this is *slightly* below the axis
-    translate([0, 0, (1/8 * headThick)]) 
+    minSphere = headRad * 1/8; // radius for minkowski sphere
+   
+    transZ = quality >= 24 ? 1 : 0; // set to 0 if quality is less than 24
+
+    // move the head to the origin, move just under origin to ensure union 
+    translate([0, 0, ((1/8 * size[4])/2*transZ)-o*5]) 
     difference() {
       if (quality >= 24) { // if low quality, disable minkowski
         minkowski() { // create a nicely rounded head
-          sphere(r = 1/8 * headRad);
-          //cylinder ( h = size[5]-(1/8 * size[5]), r = size[4]/2 - (1/8 * size[4]/2));
-          cylinder ( h = headThick, r = headRad - (1/8 * headRad));
+          sphere(r = minSphere);
+          cylinder ( h = headThick, r = headRad - minSphere);
         } // end minkowski
-      } else {
-        cylinder(h = headThick, r = headRad);
+      } else { // for low rez head - add back in difference from minkowski
+        cylinder(h = headThick + minSphere*2, r = headRad);
       }
 
 
@@ -418,6 +426,35 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
         cylinder( r = hexRadius(size[6]), $fn = 6, h = headThick*.8);
     } // end difference
   } // end if socket
+
+
+  if (head == "conical") {
+    // minkwoski() adds 2*sphere radius to the head adjust variables to deal with this
+    headThick = size[5]*1.5 -(1/32*size[4])/2+tolerance;
+    headR2 = (size[4]*.8 -1/32*size[4])/2+tolerance/2;
+    headR1 = (size[4]+tolerance)/2;
+    minSphere = 1/32 * headR1/2;
+   
+    transZ = quality >= 24 ? 1 : 0; // set to 0 if quality is less than 24
+    
+    // move the head to the origin - this is *slightly* below the axis
+    translate([0, 0, minSphere*transZ-o*5])
+    difference() {
+      if (quality >= 24) {
+        minkowski() { // add rounded edges to head
+          //sphere((1/32)*size[4]/2);
+          sphere(r = minSphere);
+          cylinder(h = headThick, r2 = headR2, 
+                  r1 = headR1);
+        } // end minkowski
+      } else {
+       cylinder(h = headThick, r2 = headR2, r1 = headR1); 
+      }
+      translate([0, 0, headThick*.25])
+        cylinder(r = hexRadius(size[6]), h = headThick*.8, $fn = 6);
+    }
+  } // end if conical
+
 
   if (head == "hex") {
     headThick = size[2]+tolerance;
@@ -443,30 +480,21 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
     }
   } // end if flatSocket
 
-  if (head == "conical") {
-    // unsure about these calculations
-    headThick = size[5]*1.5 - 1/32*size[4]+tolerance;
-    headR2 = (size[4]*.8 -1/32*size[4])/2+tolerance/2;
-    headR1 = (size[4]+tolerance)/2;
-    
-    // move the head to the origin - this is *slightly* below the axis
-    translate([0, 0, (1/64 * headThick)])
-    difference() {
-      if (quality >= 24) {
-        minkowski() { // add rounded edges to head
-          sphere((1/32)*size[4]/2);
-          cylinder(h = headThick, r2 = headR2, 
-                  r1 = headR1);
-        } // end minkowski
-      } else {
-       cylinder(h = headThick, r2 = headR2, r1 = headR1); 
-      }
-      translate([0, 0, headThick*.25])
-        cylinder(r = hexRadius(size[6]), h = headThick*.8, $fn = 6);
-    }
-  } // end if conical
 
   // don't do anything for type grub
+
+/*
+  if (head == "button") {
+    headRadius = (size[4]+tolerance)/2;
+
+    difference() {
+      sphere(r = headRadius, $fn = quality);  
+      translate([0, 0, -headRadius])
+        #cube(headRadius*2, center = true);
+    }
+
+  }
+*/
 }
 
 module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metric", 
