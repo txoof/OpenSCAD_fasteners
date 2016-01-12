@@ -3,11 +3,11 @@
 /* [Bolt] */
 customSize = 3; //[2, 3, 4, 6, 8, 10]
 customLength = 10; //[5:25]
-customHead = "button"; //[button, hex, flatSocket, flatHead, conical, socket, set, grub]
+customHead = "socket"; //[button, hex, flatSocket, flatHead, conical, socket, set, grub]
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
+bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
 
 // try these:
 
@@ -35,17 +35,22 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
   Reach me also at gmail: aaron.ciuffo
 
+  These fasteners are close aproximations to the ISO standards, but in many cases
+  are fudged.  Most notably the thread algorithm is not at all ISO compliant.  
+
   Revision of http://www.thingiverse.com/thing:1220331/edit
 
   Based heavily on http://www.thingiverse.com/thing:965737 by biomushroom
 
   Thread algorithm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
 
+  
 
   ISSUES:
     * only metric threads have been implemented
     * grub/set screws do not have socket heads
     * nodes do not work properly for sizes above M4
+    * button head size is a bit of a fudge. 
 
   TODO:
     * add socket to grub screws
@@ -74,7 +79,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   **draw a predefined bolt from fastener_type array**
   * size = metric_fastener[index] - see the fastener_type array below
     - default: M3
-  * head = "hex", "flatSocket"/"flatHead", "conical", "socket", "grub"/"set"
+  * head = "button", "hex", "flatSocket"/"flatHead", "conical", "socket", "grub"/"set"
     - default: socket
   * length = thread length - \*in the case of a flat-head socket, the TOTAL length
     - default: 10
@@ -308,7 +313,7 @@ metric_fastener = [
 
   ["M1 - UNDEFINED"], // M1
 
-  ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5], // M2
+  ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5, .90], // M2
   ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7, 1.04], // M3
   ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9, 1.3], // M4
   //["M5 BOGUS", 5, 3, 8, 9, 5, 4, 4, .8, .9, 10],
