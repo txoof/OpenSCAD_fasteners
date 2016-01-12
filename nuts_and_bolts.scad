@@ -7,7 +7,25 @@ customHead = "socket"; //[hex, flatSocket, flatHead, conical, socket, set, grub]
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance);
+bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
+
+// try these:
+
+//demo();
+//tSlotDemo();
+
+//list_types(metric_fastener);
+
+//bolt(size=metric_fastener[3], head = "", length = 12, threadType = "metric", center = 0,  v = 0, list = true);
+//boltHole(v = true, center = true, 2d = true, tolerance = .4);
+
+//nut(size = metric_fastener[3], v = true, center = true);
+//nutHole(size = metric_fastener[3], center = true, v = true);
+//nutHole(size = metric_fastener[3], center = true, v = true, 2d = true, tolerance = 0.4);
+
+//washer(size = metric_fastener[2], v=true);
+//washerHole(size = metric_fastener[2]);
+//washerHole(size = metric_fastener[2], 2d = true, tolerance = 0.4);
 
 
 /* [Hidden] */
@@ -25,19 +43,19 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
 
 
   ISSUES:
-    * heads are *slightly* larger than defined due to minkowski opperations on them
     * only metric threads have been implemented
     * grub/set screws do not have socket heads
     * nodes do not work properly for sizes above M4
 
   TODO:
     * add socket to grub screws
+    * add button-head bolts with hex drive
 
 
 #### How To Use:
 
   * Download this script 
-  * comment out the bolt() call above
+  * comment out the bolt() call
   * add the following line to your script:
   ```
   include </path/to/script/nuts_and_bolts.scad>
@@ -51,9 +69,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
 
    
 
-#### bolt(size = fastener_type[index], head = "<type\>", length = N\*,
-            threadType = "type", quality = N, tolerance = R,
-            list = true/false, center = true/false, v = true/false);
+#### bolt(size = fastener_type[index], head = "<type\>", length = N\*, threadType = "type", quality = N, tolerance = R, list = true/false, center = true/false, v = true/false);
 
   **draw a predefined bolt from fastener_type array**
   * size = metric_fastener[index] - see the fastener_type array below
@@ -82,8 +98,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   ```
 
 
-####  nut(size = fastener_type[index], threadType = thread type, quality = N, 
-          list = false, quality = N, center = false, v = false);
+####  nut(size = fastener_type[index], threadType = thread type, quality = N, list = false, quality = N, center = false, v = false);
   **draw a predefined nut from fastener_type array**
   * size = metric_fastener[index] - see the fastener_type array below
   - default: M3
@@ -104,8 +119,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   ```
 
 
-#### washer(size =fastener_type[index] , quality = N, , tolerance = R, quality = N, 
-             center = false, v = false)
+#### washer(size =fastener_type[index] , quality = N, , tolerance = R, quality = N, center = false, v = false)
   **draw a predefined washer from fastener_type array**
   * size = metric_fastener[index] - see the fastener_type array below
     - default: M3
@@ -128,8 +142,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   ```
 
 
-#### boltHole(size = fastener_type[index], length = N, quality = N, tolerance = R,
-               quality =N, 2d = true/false, center = true/false, v = true/false)
+#### boltHole(size = fastener_type[index], length = N, quality = N, tolerance = R, quality =N, 2d = true/false, center = true/false, v = true/false)
   **draw a predefined bolt hole from fastener_type array**
   * size = metric_fastener[index] + tolerance - see the fastener_type array below
     - default: M3
@@ -387,7 +400,7 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
   o = 0.001; // overage to make cuts complete
 
   // list available heads here
-  headTypes = ["conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket", "button"]; 
+  headTypes = ["conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket" ]; 
   
 
   if (list) {
@@ -544,7 +557,6 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
 
 /* 
   3D nut model
-  size = 
 */
 module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 0,
           list = false, center = false, v = false) {
@@ -840,21 +852,5 @@ module demo() {
   } // end for i
 } // end demo
 
-
-//demo();
-//tSlotDemo();
-
-//list_types(metric_fastener);
-
-//bolt(size=metric_fastener[3], head = "", length = 12, threadType = "metric", center = 0,  v = 0);
-//boltHole(v = true, center = true, 2d = true, tolerance = .4);
-
-//nut(size = metric_fastener[3], v = true, center = true);
-//nutHole(size = metric_fastener[3], center = true, v = true);
-//nutHole(size = metric_fastener[3], center = true, v = true, 2d = true, tolerance = 0.4);
-
-//washer(size = metric_fastener[2], v=true);
-//washerHole(size = metric_fastener[2]);
-//washerHole(size = metric_fastener[2], 2d = true, tolerance = 0.4);
 
 
