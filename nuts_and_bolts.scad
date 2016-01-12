@@ -1,739 +1,832 @@
-/*
-  Aaron Ciuffo
-  Released under GPL V3
+// customizer settings
 
+/* [Bolt] */
+customSize = 3; //[2, 3, 4, 6, 8, 10]
+customLength = 10; //[5:25]
+customHead = "socket"; //[hex, flatSocket, flatHead, conical, socket, set, grub]
+customThread = "metric"; //[none, metric]
+customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-  Metric nut and bolt sizes based on 
-  http://www.roymech.co.uk/Useful_Tables/Screws/Hex_Screws.htm
-  http://www.numberfactory.com/nf%20metric%20screws%20and%20bolts.htm
-  http://www.csgnetwork.com/screwsochdcaptable.html
-
-  NOTE: OpenSCAD 2015.03-2 crashes *HARD* if the called m bolt size does not exist due
-  to a bug in the lookup() function. A bug report has been filed and should be fixed
-  in the next release:
-  https://github.com/openscad/openscad/issues/1528
-
-  TODO:
-  X Add circular releif cuts in corners of tSlot to prevent cracking in acrylic
-  * fix tSlot - 3D version is a mess
-
-  Usage:
-  mBolt(
-    size = mX, // defined m bolt size (default: m3) 
-    len = N, // length of bolt shaft (default: 10)
-    center = true/false, // center the shaft (not including the head) (default: true)
-    style = "socket"/"hex" // default is socket drive (default: socket)
-    tolerance = N // positve or negative number to add to the shaft diameter (def: 0)
-    v = true/false // add verbose output to help with debuging and use
-  );
-
-  mBolt2D(
-    size = m3, len = 10, center = true, tolerance = 0, v = false)
-    size = mX, // defined m bolt size (default: m3) 
-    center = true/false, // center the shaft (not including the head) (default: true)
-    tolerance = N // positve or negative number to add to the shaft diameter (def: 0)
-    v = true/false // add verbose output to help with debuging and use
-
-
-  mNut(
-    size = mX, // defined m bolt size (default: m3)
-    center = true/false // center the nut (default: true)
-    tolerance = N // positive or negative number to add to the hole and body diameter
-    v = true/false // add verbose output to help with debuging and use
-  );
-
-  mNut2D(
-    size = mX, // defined m bolt size (default: m3)
-    center = true/false // center the nut (default: true)
-    tolerance = N // positive or negative number to add to the hole and body diameter
-    v = true/false // add verbose output to help with debuging and use
-  );
-
-  mWasher(
-    size = mX, // defined m bolt size (default: m3)
-    tolerance = N // positive or negative number to add to the inner and outer diameter
-    v = true/false // add verbose output to help with debuging and use
-  );
-  
-  mWasher(
-    size = mX, // defined m bolt size (default: m3)
-    tolerance = N // positive or negative number to add to the inner and outer diameter
-    v = true/false // add verbose output to help with debuging and use
-  );
-
-  This module creates a t-shaped slot for making perpendicular joints in laser cut
-  objects. By default the bolt slot is 0.5mm larger than the distance across the 
-  nut FLATS. This shold make it easy to slot in a nut, but it should not be able
-  to spin to make tightening easier.
-
-  // create a tSlot using 3D elements 
-  tSlot(
-    size = mX, // defined m bolt size (default: m3)
-    material = N, // thickness of material in mm (default: 3)
-    len = N, // total length of bolt to be used (default: 15)
-    tolerence = N // positive or negative number to add to the bolt size (def 0.5)
-    v = true/false // add verbose output to help with debuging and use
-    node = true/false // add nodes to relieve strain and prevent cracking (def: true)
-);
-
-  // create a tSlot using 2D elements for working with 2D shpaes
-  tSlot2D(
-    size = mX, // defined m bolt size (default: m3)
-    material = N, // thickness of material in mm (default: 3)
-    len = N, // total length of bolt to be used (default: 15)
-    tolerence = N, // positive or negative number to add to the bolt size (def: 0.5)
-    v = true/false, // add verbose output to help with debuging and use (def: true)
-    node = R // positve real < 1; add nodes to relieve strain, cracking (def: 0.15)
-  );
-  
-
-  This module creates a bolt and nut pair that fits into a tSlot for checking 
-  alignment in a working model.  
-  tSlotFit(
-    size = mX, // defined m bolt size (default: m3)
-    material = N, // thickness of material in mm (default: 3)
-    len = N, // total length of bolt to be used (default: 15)
-    tolerence = N, // positive or negative number to add to the bolt size (def: 0.5)
-    v = true/false, // add verbose output to help with debuging and use (def: true)
-    style = "socket"/"hex" // socke
-  );
-
-*/
-
-
-/* 
-  Add additional M sizes in the section below
-  Fastner Dimensions:
-  mX = [
-    [boltDia, D], // D = bolt shaft diameter
-    [headHexThick, T], // T = thickness of head
-    [boltNut, N], // N = width across flats, wrench size for bolt head or nut
-    [boltNutMax, M], // M = maximum width of bolt head or nut
-    [nutThick, Q] // Q = nutThickness
-    [washerDia, W], // W = external diameter of washer
-    [washerThick, E] // E = washer thickness
-    [socketHeadThick, H], // H = thickness of hex socket head
-    [socketDia, S], // S = diameter hex socket head
-    [socketSize, Z] // Z = socket wrench size
-  ];
-
-  BLANK 
-
-  mX = [
-    [boltDia, ],
-    [headHexThick, ],
-    [boltNut, ],
-    [boltNutMax, ], 
-    [nutThick, ],
-    [washerDia, ],
-    [washerThick, ],
-    [socketHeadThick, ],
-    [socketDia, ],
-    [socketSize, ]
-  ];
-*/
+//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance);
 
 
 /* [Hidden] */
-// This is a bit of an abuse of the lookup() function; the temporary values
-// need to be the *actual* values used in at least one of the defined sets
-// values for lookup function
-boltDia =  3;
-headHexThick = 2;
-boltNut = 5.5;
-boltNutMax = 6.4; 
-nutThick = 2.4;
-washerDia = 7;
-washerThick = 0.5;
-socketHeadThick = 3;
-socketDia = 5.5;
-socketSize = 2.5;
+/*
+  Create nuts, bolts, washers, tslots 
+
+  Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
+  Reach me also at gmail: aaron.ciuffo
+
+  Revision of http://www.thingiverse.com/thing:1220331/edit
+
+  Based heavily on http://www.thingiverse.com/thing:965737 by biomushroom
+
+  Thread algorithm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
 
 
+  ISSUES:
+    * heads are *slightly* larger than defined due to minkowski opperations on them
+    * only metric threads have been implemented
+    * grub/set screws do not have socket heads
+    * nodes do not work properly for sizes above M4
 
-// Meric Fastner Sizes
-m2 = [
-  [boltDia, 2],
-  [headHexThick, 2],
-  [boltNut, 4],
-  [boltNutMax, 4.6], 
-  [nutThick, 1.2], 
-  [washerDia, 5.5],
-  [washerThick, 0.3],
-  [socketHeadThick, 2],
-  [socketDia, 3.5],
-  [socketSize, 1.5]
-];
-
-m3 = [
-  [boltDia, 3],
-  [headHexThick, 2],
-  [boltNut, 5.5],
-  [boltNutMax, 6.4], 
-  [nutThick, 2.4], 
-  [washerDia, 7],
-  [washerThick, 0.5],
-  [socketHeadThick, 3],
-  [socketDia, 5.5],
-  [socketSize, 2.5]
-];
-
-m4 = [
-  [boltDia, 4],
-  [headHexThick, 4],
-  [boltNut, 7],
-  [boltNutMax, 8.1],
-  [nutThick, 3.2], 
-  [washerDia, 9],
-  [washerThick, 0.8],
-  [socketHeadThick, 4],
-  [socketDia, 7],
-  [socketSize, 3]
-];
-
-m6 = [
-  [boltDia, 6],
-  [headHexThick, 4],
-  [boltNut, 10],
-  [boltNutMax, 11.5],  
-  [nutThick, 5], 
-  [washerDia, 12],
-  [washerThick, 1.6],
-  [socketHeadThick, 6],
-  [socketDia, 10],
-  [socketSize, 5]
-];
-
-m8 = [
-  [boltDia, 8],
-  [headHexThick, 5.5],
-  [boltNut, 13],
-  [boltNutMax, 15], 
-  [nutThick, 6.5], 
-  [washerDia, 17],
-  [washerThick, 2],
-  [socketHeadThick, 8],
-  [socketDia, 13],
-  [socketSize, 6]
-];
-
-m10 = [
-  [boltDia, 10],
-  [headHexThick, 7],
-  [boltNut, 17],
-  [boltNutMax, 19.6],
-  [nutThick, 8], 
-  [washerDia, 21],
-  [washerThick, 2],
-  [socketHeadThick, ],
-  [socketDia, 16],
-  [socketSize, 8]
-];
-
-m12 = [
-  [boltDia, 12],
-  [headHexThick, 8],
-  [boltNut, 19],
-  [boltNutMax, 22.1],
-  [nutThick, 9.5], 
-  [washerDia, 24],
-  [washerThick, 2.5],
-  [socketHeadThick, 12],
-  [socketDia, 18],
-  [socketSize, 10]
-];
-
-types = [m2, m3, m4, m6, m8, m10, m12];
-
-/* [Customize] */
-//Type of M series fastner
-typeMeta = 1; //[0:m2,1:m3,2:m4,3:m6,4:m8,5:m10,6:m12]
-// Length of Bolt
-customizerLen = 10; //[1:40] 
-
-/*[Hidden]*/
-customizerType = types[typeMeta];
-
-module typesHelp() {
-    echo ("available mX sizeses below:");
-    for (i = types) {
-      echo(i[0][1]);
-    }
-}
+  TODO:
+    * add socket to grub screws
 
 
-module mNut(size = m3, center = true, tolerance = 0, v = false) {
-  fastenerType = size;
-  t = tolerance; 
+#### How To Use:
 
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  //headHexThickL = lookup(headHexThick, fastenerType);
-  boltNutL = lookup(boltNut, fastenerType);
-  boltNutMaxL = lookup(boltNutMax, fastenerType);
-  nutThickL = lookup(nutThick, fastenerType);
-  //washerDiaL = lookup(washerDia, fastenerType);
-  //washerThickL = lookup(washerThick, fastenerType);
-  //socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  //socketDiaL = lookup(socketDia, fastenerType);
-  //socketSizeL = lookup(socketSize, fastenerType);
+  * Download this script 
+  * comment out the bolt() call above
+  * add the following line to your script:
+  ```
+  include </path/to/script/nuts_and_bolts.scad>
+  ```
+  * see below for specifics
+
+
+#### Available Nut, Bolt, Washer array sets:
+  * metric_fasteners (alias: m)
+    - sizes: 2, 3, 4, 6, 8, 10
+
+   
+
+#### bolt(size = fastener_type[index], head = "<type\>", length = N\*,
+            threadType = "type", quality = N, tolerance = R,
+            list = true/false, center = true/false, v = true/false);
+
+  **draw a predefined bolt from fastener_type array**
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * head = "hex", "flatSocket"/"flatHead", "conical", "socket", "grub"/"set"
+    - default: socket
+  * length = thread length - \*in the case of a flat head socket, the TOTAL length
+    - default: 10
+  * threadType = "metric", "none"
+    - default: metric
+  * quality = N - N = number of curve segments (integer)
+    - default: 32
+  * tolerance = R - R = amount to increase/decrease all dimensions other than length
+  * list = true/false - list the available types
+  * center = true/false - center the length of the THREADS excluding head
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M4 x 15mm
+  bolt(size = metric_fastner[4], length = 15);
+  ```
+  ```
+  //M3 x 6 No thread
+  bolt(size = metric_fastener[3], length = 6, threadType = "none");
+  ```
+
+
+####  nut(size = fastener_type[index], threadType = thread type, quality = N, 
+          list = false, quality = N, center = false, v = false);
+  **draw a predefined nut from fastener_type array**
+  * size = metric_fastener[index] - see the fastener_type array below
+  - default: M3
+  * quality = N - N = number of curve segments (integer)
+  - default: 32
+  * center = true/false - center the object    
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M4 Nut
+  nut(metric_fastener[4]);
+  ```
+
+  ```
+  //M3 Nut - low resolution
+  nut(metric_fastener[4], quality = 15);
+  ```
+
+
+#### washer(size =fastener_type[index] , quality = N, , tolerance = R, quality = N, 
+             center = false, v = false)
+  **draw a predefined washer from fastener_type array**
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * quality = N - N = number of curve segments (integer)
+    - default: 32
+  * tolerance = R - total amount to add or subtract from the washer dimensions
+    - default: 0.2
+  * center = true/false - center the length of the THREADS excluding head
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M10 washer
+  washer(metric_fastener[10]);
+  ```
+
+  ```
+  //M3 washer, +0.4 tolerance
+  washer(metric_fastener[3], tolerance = 0.4);
+  ```
+
+
+#### boltHole(size = fastener_type[index], length = N, quality = N, tolerance = R,
+               quality =N, 2d = true/false, center = true/false, v = true/false)
+  **draw a predefined bolt hole from fastener_type array**
+  * size = metric_fastener[index] + tolerance - see the fastener_type array below
+    - default: M3
+  * length = N - N = length of bolt hole 
+    - default: 10
+  * quality = N - N = number of curve segments (integer)
+    - default: 32
+  * tolerance = R - total amount to add or subtract from the washer dimensions
+    - default: 0
+  * quality = N - N = number of curve segments (integer)
+    - default: 24
+  * 2d = true/false - true for working with 2 dimensional objects
+    - default: false
+  * center = true/false - center the length of the THREADS excluding head
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M3 hole +0.3 tolerance through 3mm material
+  mat = 10;
+  thick = 3;
+  difference() {
+    cube([mat, mat, thick], center = true);
+    #boltHole(size = metric_fastener[3], tolerance = 0.3, center = true);
+  }
+  ```
+
+
+#### nutHole(size = fastener_type[index], tolerance = R, 2d = true/false, center = true/false, v = true/false);
+  **draw a predefined nut for making negative spaces based on fastener_type array**
+    - this is useful for creating spaces for captive nuts
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * tolerance = R - total amount to add or subtract from the nut dimensions
+    - default: 0.2
+  * 2d = true/false - true for working with 2 dimensional objectsa
+    - default: false
+  * center = true/false - center the object
+  * v = true/false - verbose echo for debugging
+
+##### Examples:
+  ```
+  //M2 Nut hole in 3mm material with +0.7 tolerance 
+  mat = 10;
+  thick = 3; 
+  nutThick = 2.09; //the nut thicknes can be found using the v = true option 
 
   difference() {
-    cylinder(center = center, r = boltNutMaxL/2 + t/2, h = nutThickL + t , $fn = 6);
-    cylinder(center = true, r = boltDiaL/2 + t/2, h = nutThickL*3, $fn = 72);
-
+    cube([mat, mat, thick], center = true);
+    translate([0, 0, thick/2-nutThick])   
+    nutHole(size = metric_fastener[2], tolerance = 0.7, v = true);
   }
-  if (v) { 
-    echo ("M nut type:", boltDiaL);
-    echo ("nut thickness:", nutThickL+t);
-    echo ("options: size, center, tolerance, v(erbosity)");
-    typesHelp();
+
+  color("silver")
+  translate([0, 0, thick/2 - 1.6/2])
+  nut(metric_fastener[2], v = true, center = true);  
+  ```
+
+#### washerHole(size = fastener_type[index], tolerance = R, 2d = true/false, center = true/false, v = true/false);
+  **draw a predefined washer for making negative spaces based on fastener_type array**
+    - this is useful for creating spaces for captive washers
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * tolerance = R - total amount to add or subtract from the washer dimensions
+    - default: 0.2
+  * quality = N - N = number of curve segments (integer)
+    - default: 24
+  * 2d = true/false - true for working with 2 dimensional objects
+    - default: false
+  * center = true/false - center the object
+  * v = true/false - verbose echo for debugging
+
+
+#### tSlot(size = fastener_type[index], material = N, length = N, tolerance = R, node = P, 2d = true/false, v = true/false);
+  **draw a T-Slot for making cutouts using  CNC or laser cutter**
+  - T-Slot example: https://planiverse.wordpress.com/2014/04/07/construction-technique-tab-and-slot-with-t-nut/
+    - Nodes: http://blog.ponoko.com/2010/06/17/how-to-make-snug-joints-in-acrylic/
+  * size = metric_fastener[index] - see the fastener_type array belowa
+    - default: M3
+  * material = N - thickness of material the bolt goes through (see the demo)
+    - default: 3
+  * length = N - length of bolt
+    - default: 10
+  * tolerance = R - total amount to add or subtract from the nut dimensions
+    - default: 0.2
+  * node = P - node size as percentage of nut thickness
+    - default: 0.15
+  * 2d = true/false - true for working with 2 dimensional objects
+    - default: false 
+
+#### tSlotBolt(size = fastner_type[index], length = N, head = "head type", threadType = "type", quality = N, v = true/false);
+  **draw a bolt with a nut attached in appropriate position for a tSlot**
+    - This is useful for visualizing the tSlot placement
+  * size = metric_fastener[index] - see the fastener_type array below
+    - default: M3
+  * length = N - length of bolt
+    - default: 10
+  * head = "head type" - socket, hex, conical, set, flatHead (try v = true to see all types)
+    - default: socket
+  * threadType = "thread type" - metric, none (try v = true to see all types)
+    - default: none
+  * quality = N - N = number of curve segments (integer); if quality is set < 24 simpler forms of bolts will be used
+    - default: 24
+  * v = true/false - verbose echo for debugging
+
+
+#### list_types(fastener_type); 
+
+  **List all available sizes within a fasnter type**
+  * array_name = predefined array containing bolt information in metric
+
+  list_types(metric_fastener);
+  Output is as follows:
+  ECHO: "name: M1 - UNDEFINED"
+  ECHO: "array_index[1]"
+  ECHO: "============================="
+  ECHO: "name: M2 Bolt, Nut & Washer"
+  ECHO: "array_index[2]"
+  ECHO: "     [1] thread diameter: 2"
+  ECHO: "     [2] hex head thickess: 2"
+  ECHO: "     [3] hex head & nut size: 4"
+  ECHO: "     [4] socket head diameter: 3.5"
+  ECHO: "     [5] socket head thickness: 2"
+  ECHO: "     [6] socket tool size: 1.5"
+  ECHO: "     [7] nut thickness,: 1.6"
+  ECHO: "     [8] pitch: 0.4"
+  ECHO: "     [9] washer thickness: 0.3"
+  ECHO: "     [10] washer diameter: 5.5"
+  ECHO: "============================="
+
+#### fastener_type array
+  **predefined array of fastener sizes based on ISO threads**
+    - array is zero-indexed; element[0] contains human readable descriptions
+    - measurements based on the following sources:
+  * http://www.roymech.co.uk/Useful_Tables/Screws/Hex_Screws.htm
+  * http://www.numberfactory.com/nf%20metric%20screws%20and%20bolts.htm
+    - elements are arranged in increasing size 
+    - for metric sizes, M3 is indexed [3], M4 is indexed [4], etc.
+
+##### array descriptors 
+  * name - human readable name: M3 Bolt, 1/2 inch Bolt
+  * thread diameter - diameter of threaded bolt
+  * hex head thickness - overall thickness of hex head
+  * hex head & bolt size - distance across flats, wrench size needed
+  * socket head diameter - diameter of rounded socket head
+  * socket head thickness - overall thickness of socket head
+  * socket tool size - size of hex socket tool needed
+  * nut thickness - standard thickness
+  * pitch - ISO thread pitch value (not implemented yet)
+  * washer thickness - thickness of washer
+  * washer diameter - diameter of washer
+
+*/
+
+/* [HIDDEN] */ 
+
+metric_fastener = [
+  ["name", "thread diameter", "hex head thickess", "hex head & nut size", 
+  "socket head diameter", "socket head thickness", "socket tool size", 
+  "nut thickness,", "pitch", "washer thickness", "washer diameter"] , 
+  // M0 - field descriptors place holder in array
+
+  ["M1 - UNDEFINED"], // M1
+
+  ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5], // M2
+  ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7], // M3
+  ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9], // M4
+  //["M5 BOGUS", 5, 3, 8, 9, 5, 4, 4, .8, .9, 10],
+  ["M5 - UNDEFINED"],
+  ["M6 Bolt, Nut & Washer", 6, 4, 10, 10, 6, 5, 5, 1, 1.6, 12],
+  ["M7 - UNDEFINED"],
+  ["M8 Bolt, Nut & Washer", 8, 5.5, 13, 13, 8, 6, 6.5, 1.25, 2, 17],
+  ["M9 - UNDEFINED"],
+  ["M10 Bolt, Nut & Washer", 10, 7, 17, 16, 10, 8, 8, 1.5, 2, 21]
+
+];
+
+m = metric_fastener;
+
+// alias for metric_fastener:
+
+
+// use this as the default in the event that no size is specified
+defaultSize = metric_fastener[3]; 
+
+// external radius from flat distance
+function hexRadius(hexSize) = hexSize/2/sin(60); 
+
+// radius of circle inside hexagon
+function hexInradius(hexSize) = hexSize * (2 / sqrt(3)); 
+
+// check an array for a specific term
+function checkType(term, array) = search([term], array);
+
+module list_types(array) {
+  // list available fastener types stored and index values for programming refference
+  descriptor = array[0];
+  echo("**displays contents of descriptor array**");
+  echo("array_index[X] - X = value to be called for that fastener type.");
+  echo("     [Y] description: Z - Y = sub array index, Z = value stored");
+  for (i = [1:len(array)-1]) {
+    for (j = [ 0:len(array[i])-1 ] ) {
+      if (j == 0) {
+        echo(str(descriptor[j], ": ", array[i][j]));
+        echo(str("array_index[", i,"]"));
+      } else { // end if
+        echo(str("     [", j, "] ", descriptor[j], ": ", array[i][j]));
+      } // end else
+    } // end for j
+    echo("===============================");
+
+  } // end for i
+} // end list types
+
+module cut_bit(height, boltSize, quality = 64) { //hexagonal nuts insertion cutout
+  $fn = quality;
+  translate([0, 0, height-height/2])
+    cylinder(r1 = boltSize/1.5, r2 = boltSize/2, h = height/2);
+  
+  translate([])
+    cylinder(r1 = boltSize/2, r2 = boltSize/1.5, h = height/2);
+}
+
+module thread(size = defaultSize, length = 10, threadType = "metric", 
+              quality = 36, tolerance = 0) {
+
+  pitch = size[8];
+  twist = length/pitch*360;
+  depth = pitch *.6;
+  diameter = size[1]+tolerance;
+
+  if (threadType == "none") {
+    cylinder(r = diameter/2, h = length, $fn = quality);
+  } else {
+    linear_extrude(height = length, center = false, twist = -twist, $fn = quality)
+      translate([depth/2, 0, 0]) 
+        circle(r = diameter/2-depth/2);
   }
 }
 
 
-module mNut2D(size = m3, center = true, tolerance = 0, v = false) {
-  fastenerType = size;
-  t = tolerance; 
+// draw a head of the specified type
+module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 0, 
+                list = false, v = false) {
 
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  //headHexThickL = lookup(headHexThick, fastenerType);
-  boltNutL = lookup(boltNut, fastenerType);
-  boltNutMaxL = lookup(boltNutMax, fastenerType);
-  //nutThickL = lookup(nutThick, fastenerType);
-  //washerDiaL = lookup(washerDia, fastenerType);
-  //washerThickL = lookup(washerThick, fastenerType);
-  //socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  //socketDiaL = lookup(socketDia, fastenerType);
-  //socketSizeL = lookup(socketSize, fastenerType);
+  defaultHead = "socket";
+  
+  $fn = quality; // elements for each curve
+  o = 0.001; // overage to make cuts complete
 
-  difference() {
-    circle(center = center, r = boltNutMaxL/2 + t/2, $fn = 6);
-    circle(center = true, r = boltDiaL/2 + t/2, $fn = 72);
+  // list available heads here
+  headTypes = ["conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket"]; 
+  
 
-  }
-  if (v) { 
-    echo ("type M", boltDiaL);
-    echo ("options: size, center, tolerance, v(erbosity)");
-    typesHelp();
-  }
-}
-
-module mBolt(size = m3, len = 10, center = true, style = "socket", 
-            tolerance = 0, v = false) {
-  fastenerType = size;
-  t = tolerance; 
-
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  headHexThickL = lookup(headHexThick, fastenerType);
-  boltNutL = lookup(boltNut, fastenerType);
-  boltNutMaxL = lookup(boltNutMax, fastenerType);
-  //nutThickL = lookup(nutThick, fastenerType);
-  //washerDiaL = lookup(washerDia, fastenerType);
-  //washerThickL = lookup(washerThick, fastenerType);
-  socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  socketDiaL = lookup(socketDia, fastenerType);
-  socketSizeL = lookup(socketSize, fastenerType);
-
-  $fn = 72;
-  socketRad = (socketSizeL/2)/sin(60); // socket hole diameter
-  headRad = boltNutMaxL/2;
-
-  centerTranslate = center == true ? len/2 : len;
-
-  union() {
-    cylinder(r = boltDiaL/2 + t, h = len, center = center );
-
-    if (style == "socket") {
-      translate([0, 0, centerTranslate+socketHeadThickL/2])
-        difference() {
-          cylinder(r = socketDiaL/2, h = socketHeadThickL, center = true);
-          translate([0, 0, socketHeadThickL/2 - socketHeadThickL*.74/2])
-            cylinder(r = socketRad, h = socketHeadThickL*.75, center = true, $fn = 6);
-        }
-
-      if (v) { // add verbose output for debugging
-        echo ("type M", style, boltDiaL);
-        echo ("total length:", len + socketHeadThickL);
-        echo ("head thickness:", socketHeadThickL);
-        echo ("bolt length:", len);
-      }
+  if (list) {
+    echo ("Available head types:");
+    for (i = headTypes) {
+      echo(str("     ", i));
     }
+  }
+ 
+  // check for valid head type
+  head = checkType(head, headTypes) == [[]] ? defaultHead : head;
+
+  if (head == "socket") { // hex socket head
+    // unsure about these calculations - minkowski adds some height to the head
+    headThick = size[5]-(3/16 * size[5])+tolerance;
+    headRad = (size[4] + tolerance)/2;
     
-    if (style == "hex") {
-      //translate([0, 0, len/2+headHexThickL/2])
-      translate([0, 0, centerTranslate+headHexThickL/2])
-        cylinder(h = headHexThickL, r = headRad, center = true, $fn = 6);
-
-      if (v) { // add verbose output for debugging
-        echo ("type M", style, boltDiaL);
-        echo ("total length:", len + headHexThickL + t);
-        echo ("head thickness:", headHexThickL);
-        echo ("bolt length:", len);
-      }
-
-
-    }
-  }
-
-  if (v) {
-    echo ("options: size, len, center, style, tolerance, v(erbosity)");
-    typesHelp();
-  }
-  
-}
-
-
-
-module mBolt2D(size = m3, center = true, tolerance = 0, v = false) {
-  fastenerType = size;
-  t = tolerance; 
-
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  //headHexThickL = lookup(headHexThick, fastenerType);
-  //boltNutL = lookup(boltNut, fastenerType);
-  //boltNutMaxL = lookup(boltNutMax, fastenerType);
-  //nutThickL = lookup(nutThick, fastenerType);
-  //washerDiaL = lookup(washerDia, fastenerType);
-  //washerThickL = lookup(washerThick, fastenerType);
-  //socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  //socketDiaL = lookup(socketDia, fastenerType);
-  //socketSizeL = lookup(socketSize, fastenerType);
-
-  $fn = 72;
-  circle(r = boltDiaL/2 + t, center = center );
-  if (v) { // add verbose output for debugging
-    echo ("type M", boltDiaL);
-    echo ("options: size, center, tolerance, v(erbosity)");
-    typesHelp();
-  }
-
-}
-
-module mWasher(size = m3, tolerance = 0, v = false) {
-  fastenerType = size; 
-  t = tolerance; 
-
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  //headHexThickL = lookup(headHexThick, fastenerType);
-  //boltNutL = lookup(boltNut, fastenerType);
-  //boltNutMaxL = lookup(boltNutMax, fastenerType);
-  //nutThickL = lookup(nutThick, fastenerType);
-  washerDiaL = lookup(washerDia, fastenerType);
-  washerThickL = lookup(washerThick, fastenerType);
-  //socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  //socketDiaL = lookup(socketDia, fastenerType);
-  //socketSizeL = lookup(socketSize, fastenerType);
-
-  difference() {
-    cylinder(r = washerDiaL/2+t/2, h = washerThickL+t, center = true, $fn = 36);
-    cylinder(r = boltDiaL/2+t/2, h = washerThickL*3, center = true, $fn = 36);
-  }
-
-  if (v) {
-    echo("washer M", boltDia);
-    echo("thicknes, innerDia, outterDia:", washerThickL+t, boltDiaL+t, washerDiaL+t);
-    echo("options: size, tolerance, v(erbosity)");
-    typesHelp();
-  }
-}
-
-module mWasher2D(size = m3, tolerance = 0, v = false) {
-  fastenerType = size; 
-  t = tolerance; 
-
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  //headHexThickL = lookup(headHexThick, fastenerType);
-  //boltNutL = lookup(boltNut, fastenerType);
-  //boltNutMaxL = lookup(boltNutMax, fastenerType);
-  //nutThickL = lookup(nutThick, fastenerType);
-  washerDiaL = lookup(washerDia, fastenerType);
-  //washerThickL = lookup(washerThick, fastenerType);
-  //socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  //socketDiaL = lookup(socketDia, fastenerType);
-  //socketSizeL = lookup(socketSize, fastenerType);
-
-  difference() {
-    circle(r = washerDiaL/2+t/2, center = true, $fn = 36);
-    circle(r = boltDiaL/2+t/2, center = true, $fn = 36);
-  }
-
-  if (v) {
-    echo("washer M", boltDia);
-    echo("innerDia, outterDia:", boltDiaL+t, washerDiaL+t);
-    echo("options: size, tolerance v(erbosity)");
-    typesHelp();
-  }
-}
-
-
-// This is a mess
-module tSlot(size = m3, material = 3, bolt = 15, tolerance = 0.5, v = false, 
-            node = true) {
-  fastenerType = size;
-  t = tolerance; 
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  //headHexThickL = lookup(headHexThick, fastenerType);
-  boltNutL = lookup(boltNut, fastenerType);
-  boltNutMaxL = lookup(boltNutMax, fastenerType);
-  nutThickL = lookup(nutThick, fastenerType);
-  //washerDiaL = lookup(washerDia, fastenerType);
-  //washerThickL = lookup(washerThick, fastenerType);
-  //socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  //socketDiaL = lookup(socketDia, fastenerType);
-  //socketSizeL = lookup(socketSize, fastenerType);
-  
-  boltSlot = bolt + t - material; // length of nut slot - material + tolerence
-  nutTh = nutThickL + t; // thickness of nut + tolerence
-
-  union() {
-    cube([boltNutL+t, nutTh, material*2], center = true);
-    translate([0, (boltSlot)/2-nutTh, 0])
-      cube([boltDiaL+t, boltSlot, material*2], center=true);
-    if (node) {
-      for (i = [-1, 1]) {
-        translate([i*(boltNutL+t)/2, nutTh/2, 0])
-          cylinder(r = nutTh*.15, h = material*2, $fn = 72, center =true);
-      }
-    }
-  }
-  
-  if (v) { // add output information for debugging
-    echo("tslot total length:", boltSlot);
-    echo("length above bolt:" , boltSlot-nutTh);
-    echo("nut thickness: ", nutThickL+t);
-  }
-}
-
-
-//useful for working with 2D shapes
-module tSlot2D(size = m3, material = 0, bolt = 10, tolerance = .5, 
-                v = false, node = 0.15) {
-  if (node >= 1) {
-    echo("node value should be < 1; ideally around 0.1-0.2");
-  }
-  fastenerType = size;
-  t = tolerance; 
-
-  // lookup values
-  boltDiaL = lookup(boltDia, fastenerType);
-  boltNutL = lookup(boltNut, fastenerType);
-  boltNutMaxL = lookup(boltNutMax, fastenerType);
-  nutThickL = lookup(nutThick, fastenerType);
-
-  boltSlot = bolt + 2*t - material; // length of bolt slot
-
-  nutTh = nutThickL + t; // bolt thickness plus tolerance
-
-  union() {
-    translate([0, -t-material/2, 0])
-      square([boltDiaL, boltSlot], center=true);  // bolt slot
-    translate([0, -bolt/2+nutTh*1.25, 0])
-      square([boltNutL+t, nutTh], center = true); // nut
-
-    for (i = [-1, 1]) {
-      translate([i*(boltNutL+t)/2, -bolt/2+nutThickL*2+t/2, 0])
-        circle(r = nutTh*node, $fn = 72);
-    }
-
-   }
-  if (v) {
-    echo("tSlot2D");
-    echo("bolt dia, bolt length, material thickness, tolerance:",
-        boltDiaL, bolt, material, tolerance);
-    echo("options: size, material, bolt, tolerance, v(erbosity, node)");
-    typesHelp();
-  }
-}
-
-module tSlotDemo() {
-  cut = [10, 3];
-  tab = [cut[0], cut[1]+cut[1]/2, cut[1]];
-
-  cutSheet = [40, 30];
-  tabSheet = [cutSheet[0], cutSheet[1] - cut[1], cut[1]];
-
-
-
-  linear_extrude(height = cut[1], center = true)
-  color("yellow")
-  difference() {
-    square(cutSheet);
-    translate([cutSheet[0]/2-cut[0]/2, cutSheet[1]-cut[1], 0])
-      square(cut);
-    translate([cutSheet[0]/2, cutSheet[1]-10/2, ])
-      tSlot2D(material = 0, bolt = 10);
-  }
-
-  //linear_extrude(height = cut[1], center =true)
-  color("blue")
-  translate([0, cutSheet[1], -tabSheet[1]-cut[1]/2])
-  rotate([90, 0, 0])
-  union() {
-    cube(tabSheet);
+    // move the head to the origin - this is *slightly* below the axis
+    translate([0, 0, (1/8 * headThick)]) 
     difference() {
-      translate([tabSheet[0]/2, tabSheet[1]+tab[1]/2, cut[1]/2])
-        cube(tab, center = true);
-      translate([cutSheet[0]/2, cutSheet[1]-1.5, 0])
-        mBolt(tolerance = 0.1);
+      if (quality >= 24) { // if low quality, disable minkowski
+        minkowski() { // create a nicely rounded head
+          sphere(r = 1/8 * headRad);
+          //cylinder ( h = size[5]-(1/8 * size[5]), r = size[4]/2 - (1/8 * size[4]/2));
+          cylinder ( h = headThick, r = headRad - (1/8 * headRad));
+        } // end minkowski
+      } else {
+        cylinder(h = headThick, r = headRad);
+      }
+
+
+      // hex tool socket
+      translate([0, 0, headThick*.75/2])
+        cylinder( r = hexRadius(size[6]), $fn = 6, h = headThick*.8);
+    } // end difference
+  } // end if socket
+
+  if (head == "hex") {
+    headThick = size[2]+tolerance;
+    headRadius = hexRadius(size[3])+tolerance;
+    intersection(size) {
+      cylinder (r = headRadius, h = headThick, $fn = 6); // six sided head
+      // cut rounded edges on bolt heads
+      cut_bit(height = headThick, boltSize = size[3]+tolerance*2, quality = quality);
+    } 
+  } // end if hex
+
+  if (head == "flatSocket" || head == "flatHead") { 
+    headThick = size[5]+tolerance;
+    headR1 = (size[1]+tolerance)/2;
+    headR2 = (size[4]+tolerance)/2;
+    //headRad = 
+    translate([0, 0, -size[5]*.75])
+    difference() {
+      cylinder(r1 = headR1, r2 = headR2, h = headThick*.75);
+      translate([0, 0, headThick*.75/2+o])
+        // hex tool socket
+        cylinder(r = hexRadius(size[6]), h = headThick/2, $fn=6);
+    }
+  } // end if flatSocket
+
+  if (head == "conical") {
+    // unsure about these calculations
+    headThick = size[5]*1.5 - 1/32*size[4]+tolerance;
+    headR2 = (size[4]*.8 -1/32*size[4])/2+tolerance/2;
+    headR1 = (size[4]+tolerance)/2;
+    
+    // move the head to the origin - this is *slightly* below the axis
+    translate([0, 0, (1/64 * headThick)])
+    difference() {
+      if (quality >= 24) {
+        minkowski() { // add rounded edges to head
+          sphere((1/32)*size[4]/2);
+          cylinder(h = headThick, r2 = headR2, 
+                  r1 = headR1);
+        } // end minkowski
+      } else {
+       cylinder(h = headThick, r2 = headR2, r1 = headR1); 
+      }
+      translate([0, 0, headThick*.25])
+        cylinder(r = hexRadius(size[6]), h = headThick*.8, $fn = 6);
+    }
+  } // end if conical
+
+  // don't do anything for type grub
+}
+
+module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metric", 
+            quality = 24, tolerance = 0, list = false, center = false, v = false) {
+
+  defaultThread = "none";
+  threadTypes = ["none", "metric"];
+
+  centerTransZ = center == true ? -length/2 : 0;
+
+  if (list) { // list available thread types 
+    echo("Available thread types");
+    for (k = threadTypes) {
+      echo(str("     ", k));
     }
   }
 
-  translate([cutSheet[0]/2, cutSheet[1]-10/2, 0])
-    rotate([-90, 0, 0])
-    tSlotFit();
+  threadType = checkType(threadType, threadTypes) == [[]] ? defaultThread : threadType;
 
+
+  myLength = head == "flatSocket" || head == "flatHead" ? length - size[5]*.75 : length;
+
+  translate([0, 0, centerTransZ])
+  difference() {
+    union() {
+      translate([0, 0, length])
+        bolt_head(size = size, head = head, quality = quality, , tolerance = tolerance,
+                  list = list, v = v);
+        thread(size = size, length = myLength, 
+              threadType = threadType, quality = quality, tolerance = tolerance);
+    } // end union
+  } // end difference
+
+  if (v) { // verbose output for debugging
+    echo(str("Bolt"));
+    echo("Options: size, head, length, threadType, quality, list, center, v");
+    echo(str("     size: ", size[0]));
+    echo(str("     diameter: ", size[1]+tolerance));
+    echo(str("     thread length: ", length));
+    echo(str("     thread type: ", threadType));
+
+
+  }
 }
 
 
-// nut and bolt pair set to tSlot dimensions for checking fit
-module tSlotFit(size = m3, material = 3, bolt = 10, tolerance = 0.5, v = false,
-            node = true, style = "socket") {
+
+/* 
+  3D nut model
+  size = 
+*/
+module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 0,
+          list = false, center = false, v = false) {
+
+  $fn = quality;
+  height = size[7]+tolerance;
+  radius = hexRadius(size[3]+tolerance/2);
+  boltSize = size[3]+tolerance;
+  defaultThread = "none";
+  threadTypes = ["none", "metric"];
+
+  threadType = checkType(threadType, threadTypes) == [[]] ? defaultThread: threadType;
+
+  centerTransZ = center == true ? -height/2 : 0;
 
   if (v) {
-    echo("tSlotFit");
-    echo("options: size, material, bolt, tolerance, v(erbosity), node, style")
-    typesHelp();
+    echo("Nut");
+    echo("Options: size, threadType, quality, list, center, v");
+    echo(str("     size: ", size[0]));
+    echo(str("     nut thickness: ", height));
+    echo(str("     nut radius: ", radius));
   }
 
-  fastenerType = size;
-  nutThickL = lookup(nutThick, fastenerType);
-
-  boltSlot = bolt + tolerance - material;
-  nutTh = nutThickL + tolerance;
-
-  color("darkgray")
-    //rotate([-90, 0, 0])
-    mBolt(size = size, len = bolt, tolerance = -.01, v = v, style = style);
-
-  color("slategray")
-    translate([0, 0, -bolt/2+nutTh*1.25])
-    //rotate([-90, 0, 0])
-    mNut(size = size, v = v);
-
-
-  
-}
-
-module demo() {
-  for (i = types) {
-    fastenerType = i;
-    boltDiaL = lookup(boltDia, fastenerType);
-    headHexThickL = lookup(headHexThick, fastenerType);
-    boltNutL = lookup(boltNut, fastenerType);
-    boltNutMaxL = lookup(boltNutMax, fastenerType);
-    nutThickL = lookup(nutThick, fastenerType);
-    washerDiaL = lookup(washerDia, fastenerType);
-    washerThickL = lookup(washerThick, fastenerType);
-    socketHeadThickL = lookup(socketHeadThick, fastenerType);
-    socketDiaL = lookup(socketDia, fastenerType);
-    socketSizeL = lookup(socketSize, fastenerType);
-
-    translate([0, socketDiaL*10-40, 0])
-      color("red")
-      mBolt(i, len = washerDiaL);
-    translate([30, socketDiaL*10-40, 0])
-      color("orange")
-      mBolt(i, style = "hex", len = washerDiaL);
-    translate([60, socketDiaL*10-40, 0])
-      color("yellow")
-      mNut(i);
-    translate([90, socketDiaL*10-40, 0])
-      color("green")
-      mWasher(i);
-    translate([120, 25, 0])
-      tSlotDemo();
+  if (list) {
+    echo("Available thread types:");
+    for (k = threadTypes) {
+      echo(str("     ", k));
+    }
   }
+
+  translate([0, 0, centerTransZ])
+  difference() {
+    intersection() {
+      cylinder(r = radius, h = height, $fn = 6);
+      cut_bit(height = height, boltSize = boltSize);
+    } // end intersection
+    translate([0, 0, -(height*1.1 - height)/2])
+      thread(size = size, threadType = threadType, 
+            length = height*1.1, tolerance = tolerance, quality = quality, list = list);
+  } // end difference
+//cylinder(center = true, r = 1.5, h = 5);
 }
 
-module simpleDemo() {
-  fastenerType = customizerType;
-  boltDiaL = lookup(boltDia, fastenerType);
-  headHexThickL = lookup(headHexThick, fastenerType);
-  boltNutL = lookup(boltNut, fastenerType);
-  boltNutMaxL = lookup(boltNutMax, fastenerType);
-  nutThickL = lookup(nutThick, fastenerType);
-  washerDiaL = lookup(washerDia, fastenerType);
-  washerThickL = lookup(washerThick, fastenerType);
-  socketHeadThickL = lookup(socketHeadThick, fastenerType);
-  socketDiaL = lookup(socketDia, fastenerType);
-  socketSizeL = lookup(socketSize, fastenerType);
-  
-  trans = washerDiaL*1.5;
-  
-  color("blue")
-    mBolt(size = fastenerType, len = customizerLen);
 
-  translate([trans, 0, 0])
-    color("red")
-    mBolt(size = fastenerType, style = "hex", len = customizerLen);
-  
-  translate([trans*2, 0, 0])
-    color("green")
-    mNut(size = fastenerType);
+module washer(size = defaultSize, quality = 24, , tolerance = 0.1, 
+              center = false, v = false) {
 
-  translate([trans*3, 0, 0])
-    color("orange")
-    mWasher(size = fastenerType);
+  $fn = quality;
+  washDia = size[10]+tolerance; 
+  washThick = size[9]+tolerance;
+  washHole = size[1]+tolerance;
+
+  if (v) {
+    echo("Washer");
+    echo(str("size: ", size[0]));
+    echo(str("     thickness: ", washThick));    
+    echo(str("     diameter: ", washDia));
+  }
   
-  translate([trans*4+15, 0, 0])
-    tSlotDemo();
+  difference() {
+    cylinder(r = washDia/2, h = washThick);
+    cylinder(r = washHole/2, h = washThick*4, center = true);
+  }
+
 }
 
 
 /*
-module tSlotDemo() {
-  thick = 3; // material thickness
-  cutSheet = [30, 20, thick];
-  tol = 0.5; // tolerance
+  boltHole();
+  create a hole for a bolt to pass through
+*/
+module boltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0, 
+                2d = false, center = false, v = false) {
 
-  difference() {
-    color("blue")
-      cube(cutSheet, center = true);
-    translate([0, 10-4.6, 0])
-      tSlot(size = m3, material = thick, bolt = 10, tolerance = tol);
+
+  $fn = quality;
+  boltDiameter = size[1] + tolerance;
+  if (2d) {
+    circle(r = boltDiameter/2);
+  } else {
+    cylinder(r = boltDiameter/2, h = length, center = center);
+  } 
+
+  if (v) {
+    echo("Bolt hole");
+    echo(str("size: ", size[0]));
+    echo(str("     diameter: ", boltDiameter));
+    echo(str("     length: ", length));
   }
+} 
+
+
+/*
+  nutHole();
+  create recessed sockets for captive nuts or similar
+*/
+module nutHole(size = defaultSize, tolerance = 0.2, 2d = false, 
+              center = false, v = false) {
+
+  nutSize = size[3];
+  nutRadius = hexRadius(nutSize)+tolerance/2;
+  height = size[7]+tolerance;
   
-  difference() {
-    color("yellow")
-      translate([0, 10+3/2, 0])
-      cube([30, thick, 25], center=true);
-    translate([0, 10-4.6+thick])
-      rotate([-90, 0, 0])
-      mBolt(m3, len = 10, tolerance = 0.1);
+  centerTransZ = center == true ? -height/2 : 0; // amount to center by
+
+  if (2d) {
+    circle( r = nutRadius, $fn = 6);
+  } else {
+    translate([0, 0, centerTransZ])
+      cylinder(h = height, r = nutRadius, $fn = 6);
   }
 
-  translate([0, 10-4.6+thick-tol, 0])
-    rotate([-90, 0, 0])
-    color("silver")
-    mBolt(m3, len = 10, tolerance = 0.01);
-
-  translate([0, 10-4.6, 0])
-    rotate([-90, 30, 0])
-    color("gray")
-    mNut(m3);
+  if (v) {
+    echo("nutHole");
+    echo("Options: size, tolerance, center, v");
+    echo(str("    size: ", size[0]));
+    echo(str("    nutHole thickness: ", height));
+    echo(str("    nutHole radius: ", nutRadius));
+    echo(str("    tolerance: ", tolerance));
+  }
 
 }
-*/
 
-//simpleDemo();
+/*
+  washerHole();
+  create recessed sockets for captive washers or similar
+*/
+module washerHole(size = defaultSize, quality = 24, , tolerance = 0.2, 2d = false, 
+              center = false, v = false) {
+
+  $fn = quality;
+  washDia = size[10]+tolerance; 
+  washThick = size[9]+tolerance;
+
+  if (2d) {
+    circle(r = washDia/2);
+  } else {
+    cylinder(r = washDia/2, h = washThick);
+  }
+
+  if (v) {
+    echo("Washer");
+    echo(str("size: ", size[0]));
+    echo(str("     thickness: ", washThick));    
+    echo(str("     diameter: ", washDia));
+  }
+
+}
+
+
+
+/*
+  create a tSlot joint
+  https://planiverse.wordpress.com/2014/04/07/construction-technique-tab-and-slot-with-t-nut/
+*/
+module tSlot(size = defaultSize, material = 3, length = 10, 
+            tolerance = 0.5, node = 0.15, 2d = false, v = false) {
+
+  boltDia = size[1] + tolerance;
+  nutTh = size[7] + tolerance;
+  nutFlat = size[3] + tolerance;
+  nutRad = hexRadius(size[3]);
+  t = tolerance;
+  
+  boltSlot = length + 2*t - material; // length of bolt slot - material + tolerance
+
+  if (2d) {
+    union() {
+      translate([0, -t - material/2])
+        square([boltDia, boltSlot], center = true); // slot for bolt
+      translate([0, -length/2+nutTh*1.25]) 
+        square([nutFlat, nutTh], center = true); // slot for nut
+      // add circular nodes to the nut cutout to prevent cracking when tightened
+      if (node > 0) { // add nodes
+        for (i =[-1, 1]) {
+          translate([i*(nutFlat)/2, -length/2+size[7]*2+t/2, 0])
+            circle(r = nutTh*node, $fn = 72);
+        } // end for
+      } // end if node
+    } // end union
+
+  } else {
+    union() {
+      translate([0, -t - material/2])
+        cube([boltDia, boltSlot, material*2], center = true); // slot for bolt
+      translate([0, -length/2+nutTh*1.25])
+        cube([nutFlat, nutTh, material*2], center = true); // slot for nut
+      // add circular nodes to the nut cutout to prevent cracking when tightened
+      if (node > 0) { // and nodes
+        for (i =[-1, 1]) {
+          translate([i*(nutFlat)/2, -length/2+size[7]*2+t/2, 0])
+            cylinder(r = nutTh*node, h = material*2, $fn = 72, center = true);
+        } // end for
+      } // end if node
+    } // end union
+  } // end 2d false
+  
+
+} // end tSlot
+
+// demonstration bolt with nut attached in appropriate position for tSlot
+module tSlotBolt(size = defaultSize, length = 10, head = "socket", threadType = "none", 
+                quality = 24, v = false) {
+
+  // move nut and bolt pair into appropriate position to be used with a tSlot
+  translate([0, 0, -length/2]) {
+    color("darkgray")
+    bolt(size = size, head = head, length = length, threadType = threadType, 
+        quality = quality, v = v);  
+    color("silver")
+    translate([0, 0, size[7]*1.25+.25])
+      rotate([0, 0, 30])
+      nut(size = size, , threadType = threadType, quality = quality, 
+          center = true, v = v);
+  }
+}
+
+
+module tSlotDemo() {
+  material = 3;
+  cut = 20;
+  outCut = 15.01;
+  
+  bolt = 15;
+
+  faceX = 50;
+  faceY = 30;
+
+  color("gold")
+  difference() {
+    cube([faceX, faceY, material], center = true); // face
+    translate([0, (faceY/2-material/2)]) 
+      cube([cut, material+.001, material*2], center = true); // cut out
+    translate([0, faceY/2-(bolt)/2, 0])
+      tSlot(tolerance = 0.25, length = bolt);  
+  }
+
+  color("darkblue") // face with tab
+  translate([0, faceY/2-material/2-.1, -faceY/2+material/2-.1])
+  rotate([90, 0, 0])
+  
+  difference() {
+    union() {
+      cube([faceX, faceY, material], center = true); // face
+      translate([0, faceY/2, 0])
+        cube([cut, material, material], center = true); // tab
+    }
+    for (i = [-1, 1]) { // cut outs on either side of tab
+      translate([i*(faceX/2-outCut/2), faceY/2-material/2-.001, 0])
+        cube([outCut+.02, material+.25, material*2], center = true);
+    }
+    translate([0, faceY/2-1.5, bolt/2])
+      rotate([180, 0, 0])
+      boltHole(length = bolt); // bolt hole
+  }
+
+  // add a bolt with nut attached
+  color("darkgray") 
+  translate([0, faceY/2-bolt, 0])
+  rotate([-90, 0, 0])
+  tSlotBolt(size = defaultSize, length = bolt); // bolt with nut attached 
+}
+
+module demo() {
+  space = metric_fastener[3][4]*1.5; // spacing
+  
+  // types of threads and fasteners
+  types =  ["conical", "socket", "hex", "flatHead", "grub", "nut", "washer"];
+
+  colors = ["red", "orange", "gold", "green", "skyblue", "lavender", "violet"];
+  
+  threads = ["metric", "none", "none"];
+
+  quality = [36, 24, 7];
+
+
+  // this is a little brittle - the nut and washer section will break if more 
+  // head types are added 
+  for (i = [0:len(types)-1]) { // recurse the types of heads, and fasteners
+    for (j = [0:len(threads)-1]) { // recurse the types of threads 
+      translate([space*i, j*space ,0]) 
+          color(colors[i])
+          if (i < 5) {
+            bolt(head = types[i], threadType = threads[j], quality = quality[j]);
+          } 
+          else if (i == 5) {
+            nut(threadType = threads[j], quality = quality[j]);
+          }
+          else if (i == 6) {
+            washer(quality = quality[j]);
+          }
+    } // end for j
+  } // end for i
+} // end demo
+
+
 //demo();
-//mWasher(m10);
-//mNut(m3);
-//mBolt(m3);
-//mBolt(size = m3, style = "hex");
-//mBolt(m3, tolerance = 0.02, center = false, style = "hex", len = 15);
-//mBolt(m3, tolerance = 0.05, center = true, len = 6);
-//tSlot(size = m3, bolt = 10);
 //tSlotDemo();
-//tSlot2D();
-//mWasher2D();
-//mNut2D();
-//tSlot2D();
-//tSlot();
+
+//list_types(metric_fastener);
+
+//bolt(size=metric_fastener[3], head = "", length = 12, threadType = "metric", center = 0,  v = 0);
+//boltHole(v = true, center = true, 2d = true, tolerance = .4);
+
+//nut(size = metric_fastener[3], v = true, center = true);
+//nutHole(size = metric_fastener[3], center = true, v = true);
+//nutHole(size = metric_fastener[3], center = true, v = true, 2d = true, tolerance = 0.4);
+
+//washer(size = metric_fastener[2], v=true);
+//washerHole(size = metric_fastener[2]);
+//washerHole(size = metric_fastener[2], 2d = true, tolerance = 0.4);
+
+
