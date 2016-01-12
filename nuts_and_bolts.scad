@@ -3,7 +3,7 @@
 /* [Bolt] */
 customSize = 3; //[2, 3, 4, 6, 8, 10]
 customLength = 10; //[5:25]
-customHead = "socket"; //[hex, flatSocket, flatHead, conical, socket, set, grub]
+customHead = "button"; //[button, hex, flatSocket, flatHead, conical, socket, set, grub]
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
@@ -385,13 +385,6 @@ module thread(size = defaultSize, length = 10, threadType = "metric",
 }
 
 
-bolt_head(v = true, tolerance = 0, head = "button", quality = 24);
-translate([0, m[3][4]/2, 0])
-color("red")
-cylinder(r = m[3][4]/2, h = m[3][11], $fn = 24);
-
-//list_types(m);
-
 // draw a head of the specified type
 module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 0, 
                 list = false, v = false) {
@@ -500,12 +493,14 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
 
 
   if (head == "button") {
-    c = size[4]; // chord length
-    f = size[11]; // height of button 
+    c = size[4]; // chord length 
+    f = size[11]*1.25; // height of button  * 1.25 rough aproximation of proper size 
 
     //headRadius = ((pow(c,2)/4)-pow(f,2))/2*f;
     // r = radius of sphere that will be difference'd to make the button
-    r = ( pow(c,2)/4 + pow(f,2) )/2*f;
+    r = ( pow(c,2)/4 + pow(f,2) )/(2*f); 
+
+    echo(c, r);
 
     d = r - f; // displacement to move sphere
 
@@ -514,7 +509,7 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
       sphere(r = r, $fn = quality);  
       translate([0, 0, -r])
         cube(r*2, center = true);
-      translate([0, 0, f])
+      translate([0, 0, f/3])
       cylinder(r = hexRadius(size[6]), h = f, $fn = 6);
       
     } // end difference
