@@ -829,29 +829,34 @@ module tSlotDemo() {
   tSlotBolt(size = defaultSize, length = bolt); // bolt with nut attached 
 }
 
-!demo();
-
-module demo() {
+module demo(text = true) {
   space = metric_fastener[3][4]*2; // spacing
   
   // types of threads and fasteners
-  types =  ["conical", "socket", "hex", "flatHead", "button", "grub", "nut", "washer"];
+  // "nut", "washer" and "text plac holder" need to be last three elements
+  types =  ["conical", "socket", "hex", "flatHead", "button", "grub", "nut", 
+            "washer", "text place holder"];
 
   //colors = ["red", "orange", "gold", "green", "skyblue", "lavender", "violet"];
-  
-  threads = ["metric", "none", "none", "none"];
 
-  quality = [36, 24, 23, 8];
+  renderOpts = [["metric", 36], ["metric", 24], ["none", 23], ["none", 9]];
 
 
   // this is a little brittle - the nut and washer section will break if more 
   // head types are added 
-  h = 1.5;
-  ip = 7;
-  jp = 15;
-  m = 36;
+  h = -33; // corse multiplier (rate of color change)
+  ip = 7; // starting column in color space grid
+  jp = 15; // starting row
+  m = 1; // fine multiplier (rate of color change)
   for (i = [0:len(types)-1]) { // recurse the types of heads, and fasteners
-    for (j = [0:len(threads)-1]) { // recurse the types of threads 
+
+    if (text && i < len(types)-1) { // add labels
+      translate([space*i, -len(types[i])-5, 0])
+        rotate(90)
+        text(str(types[i]), size = 3, halign = "center", valign = "center");
+    }
+
+    for (j = [0:len(renderOpts)-1]) { // recurse the types of threads 
 
 
       r = 0.5+sin(h*(i+ip)*m)/2; // calculate red color
@@ -860,14 +865,19 @@ module demo() {
 
       translate([space*i, j*space ,0]) 
           color([r, g, b])
-          if (i < len(types)-2) {
-            bolt(head = types[i], threadType = threads[j], quality = quality[j]);
+          if (i < len(types)-3) {
+            bolt(head = types[i], threadType = renderOpts[j][0], 
+                quality = renderOpts[j][1]);
           } 
-          else if (i == len(types) - 2) {
-            nut(threadType = threads[j], quality = quality[j]);
+          else if (i == len(types) - 3) {
+            nut(threadType = renderOpts[j][0], quality = renderOpts[j][1]);
           }
-          else if (i == len(types) - 1) {
-            washer(quality = quality[j]);
+          else if (i == len(types) - 2) {
+            washer(quality = renderOpts[j][1]);
+          }
+          else if ( text && i == len(types) - 1) { // add labels
+            color("blue")
+            text(str("thread: ",renderOpts[j][0], "; quality: ", renderOpts[j][1] ), size = 3, valign = "center");
           }
     } // end for j
   } // end for i
