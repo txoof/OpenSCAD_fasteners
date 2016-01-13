@@ -4,10 +4,11 @@
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
   Reach me also at gmail: aaron.ciuffo
 
-  These fasteners are close aproximations to the ISO standards, but in many cases
-  are fudged.  Most notably the thread algorithm is not at all ISO compliant.  
+  ***These fasteners are close aproximations to the ISO standards, but in many cases are fudged.  Most notably the thread algorithm is not at all ISO compliant.***
 
-  Revision of http://www.thingiverse.com/thing:1220331/edit
+  Latest version available on [GitHub](https://github.com/txoof/OpenSCAD_fasteners)
+
+  Revision of http://www.thingiverse.com/thing:1220331
 
   Based heavily on http://www.thingiverse.com/thing:965737 by biomushroom
 
