@@ -73,6 +73,12 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
     - sizes: 2, 3, 4, 6, 8, 10
 
    
+#### demo(text = true/false);
+  **demo most of the the features**
+  * text = true/false - add descriptive text
+
+### tSlotDemo
+
 
 #### bolt(size = fastener_type[index], head = "<type\>", length = N\*, threadType = "type", quality = N, tolerance = R, list = true/false, center = true/false, v = true/false);
 
@@ -389,7 +395,6 @@ module thread(size = defaultSize, length = 10, threadType = "metric",
   }
 }
 
-
 // draw a head of the specified type
 module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 0, 
                 list = false, v = false) {
@@ -432,10 +437,8 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
       } else { // for low rez head - add back in difference from minkowski
         cylinder(h = headThick + minSphere*2, r = headRad);
       }
-
-
       // hex tool socket
-      translate([0, 0, headThick*.75/2])
+      translate([0, 0, headThick/2])
         cylinder( r = hexRadius(size[6]), $fn = 6, h = headThick*.8);
     } // end difference
   } // end if socket
