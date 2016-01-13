@@ -30,6 +30,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
 
 /* [Hidden] */
 /*
+  =====start documentation=====
   Create nuts, bolts, washers, tslots 
 
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
@@ -307,6 +308,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   * washer thickness - thickness of washer
   * washer diameter - diameter of washer
 
+  =====end documentation=====
 */
 
 /* [HIDDEN] */ 

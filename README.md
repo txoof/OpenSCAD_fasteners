@@ -1,3 +1,4 @@
+  =====start documentation=====
   Create nuts, bolts, washers, tslots 
 
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
@@ -22,7 +23,6 @@
 
   TODO:
     * add socket to grub screws
-    * add button-head bolts with hex drive
 
 
 #### How To Use:
@@ -41,6 +41,14 @@
     - sizes: 2, 3, 4, 6, 8, 10
 
    
+#### demo(text = true/false);
+  **show most of the the features**
+  * text = true/false - add descriptive text
+
+### tSlotDemo();
+  **demonstrate a t-slot joint with a bolt**
+  * for a working example of t-slot consturction see this [box](http://www.thingiverse.com/thing:1251283) built with t-slots
+
 
 #### bolt(size = fastener_type[index], head = "<type\>", length = N\*, threadType = "type", quality = N, tolerance = R, list = true/false, center = true/false, v = true/false);
 
@@ -268,6 +276,4 @@
   * washer thickness - thickness of washer
   * washer diameter - diameter of washer
 
-*/
-
-
+  =====end documentation=====
