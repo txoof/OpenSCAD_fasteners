@@ -7,12 +7,12 @@ customHead = "socket"; //[button, hex, flatSocket, flatHead, conical, socket, se
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
+bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
 
 // try these:
 
 //demo();
-tSlotDemo();
+//tSlotDemo();
 
 //list_types(metric_fastener);
 
