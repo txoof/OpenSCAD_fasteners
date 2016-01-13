@@ -842,36 +842,37 @@ module tSlotDemo() {
 }
 
 module demo(text = true) {
-  space = metric_fastener[3][4]*2; // spacing
+  space = metric_fastener[3][4]*2; // spacing in the display grid
   
   // types of threads and fasteners
-  // "nut", "washer" and "text plac holder" need to be last three elements
+  // "nut", "washer" and "text place holder" need to be last three elements
+  
+  // type of object to render in each column
   types =  ["conical", "socket", "hex", "flatHead", "button", "grub", "nut", 
             "washer", "text place holder"];
 
-  //colors = ["red", "orange", "gold", "green", "skyblue", "lavender", "violet"];
-
+  // options for each row to be rendered [thread type, quality]
   renderOpts = [["metric", 36], ["metric", 24], ["none", 23], ["none", 9]];
 
-
-  // this is a little brittle - the nut and washer section will break if more 
-  // head types are added 
+  // color options - this helps create a rainbowed grid
+  // see ../test/color_test.scad locally
   h = -33; // corse multiplier (rate of color change)
   ip = 7; // starting column in color space grid
   jp = 15; // starting row
   m = 1; // fine multiplier (rate of color change)
+
   for (i = [0:len(types)-1]) { // recurse the types of heads, and fasteners
 
-    if (text && i < len(types)-1) { // add labels
+    if (text && i < len(types)-1) { // add labels below X axis 
       translate([space*i, -len(types[i])-5, 0])
         rotate(90)
         text(str(types[i]), size = 3, halign = "center", valign = "center");
     }
 
-    for (j = [0:len(renderOpts)-1]) { // recurse the types of threads 
+    for (j = [0:len(renderOpts)-1]) { // recurse the render options 
 
 
-      r = 0.5+sin(h*(i+ip)*m)/2; // calculate red color
+      r = 0.5+sin(h*(i+ip)*m)/2; // calculate color s
       g = 0.5+sin(h*(j+jp)*m)/2;
       b = 0.5+sin(h*(i+j+jp+ip)*m)/2;
 
@@ -881,13 +882,13 @@ module demo(text = true) {
             bolt(head = types[i], threadType = renderOpts[j][0], 
                 quality = renderOpts[j][1]);
           } 
-          else if (i == len(types) - 3) {
+          else if (i == len(types) - 3) { // nuts should be third to last
             nut(threadType = renderOpts[j][0], quality = renderOpts[j][1]);
-          }
-          else if (i == len(types) - 2) {
+          } 
+          else if (i == len(types) - 2) { // washers should be second to last
             washer(quality = renderOpts[j][1]);
           }
-          else if ( text && i == len(types) - 1) { // add labels
+          else if ( text && i == len(types) - 1) { // add labels - last item in list
             color("blue")
             text(str("thread: ",renderOpts[j][0], "; quality: ", renderOpts[j][1] ), size = 3, valign = "center");
           }
