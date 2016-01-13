@@ -7,7 +7,7 @@ customHead = "socket"; //[button, hex, flatSocket, flatHead, conical, socket, se
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
+//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
 
 // try these:
 
@@ -54,7 +54,6 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
 
   TODO:
     * add socket to grub screws
-    * add button-head bolts with hex drive
 
 
 #### How To Use:
@@ -74,10 +73,12 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
 
    
 #### demo(text = true/false);
-  **demo most of the the features**
+  **show most of the the features**
   * text = true/false - add descriptive text
 
-### tSlotDemo
+### tSlotDemo();
+  **demonstrate a t-slot joint with a bolt**
+  * for a working example of t-slot consturction see this [box](http://www.thingiverse.com/thing:1251283) built with t-slots
 
 
 #### bolt(size = fastener_type[index], head = "<type\>", length = N\*, threadType = "type", quality = N, tolerance = R, list = true/false, center = true/false, v = true/false);
@@ -797,16 +798,19 @@ module tSlotDemo() {
   faceX = 50;
   faceY = 30;
 
+  // create a face with a slot for a tab to fit into 
   color("gold")
   difference() {
-    cube([faceX, faceY, material], center = true); // face
+    cube([faceX, faceY, material], center = true); // face to be used
     translate([0, (faceY/2-material/2)]) 
-      cube([cut, material+.001, material*2], center = true); // cut out
-    translate([0, faceY/2-(bolt)/2, 0])
-      tSlot(tolerance = 0.25, length = bolt);  
+      cube([cut, material+.001, material*2], center = true); // cut out for tab
+    translate([0, faceY/2- bolt/2, 0])
+      tSlot(tolerance = 0.25, length = bolt, material = material); // cut a tslot
   }
 
-  color("darkblue") // face with tab
+  // create a face with a tab to fit into the gold slot above
+  color("darkblue") 
+  // move into position to mate with gold face
   translate([0, faceY/2-material/2-.1, -faceY/2+material/2-.1])
   rotate([90, 0, 0])
   
@@ -814,22 +818,24 @@ module tSlotDemo() {
     union() {
       cube([faceX, faceY, material], center = true); // face
       translate([0, faceY/2, 0])
-        cube([cut, material, material], center = true); // tab
+        cube([cut, material, material], center = true); // add a tab
     }
+    // remove material on either side of tab
     for (i = [-1, 1]) { // cut outs on either side of tab
       translate([i*(faceX/2-outCut/2), faceY/2-material/2-.001, 0])
         cube([outCut+.02, material+.25, material*2], center = true);
     }
+    // cut a hole in the blue face for the bolt to fit through
     translate([0, faceY/2-1.5, bolt/2])
       rotate([180, 0, 0])
-      boltHole(length = bolt); // bolt hole
+      boltHole(length = bolt, tolerance = 0.4); // bolt hole
   }
 
-  // add a bolt with nut attached
-  color("darkgray") 
-  translate([0, faceY/2-bolt, 0])
-  rotate([-90, 0, 0])
-  tSlotBolt(size = defaultSize, length = bolt); // bolt with nut attached 
+
+  // add a bolt with nut attached to show off tSlot
+  translate([0, faceY/2- bolt/2, 0])
+    rotate([-90, 0, 0])
+    tSlotBolt(size = defaultSize, length = bolt, material = material);  
 }
 
 module demo(text = true) {
