@@ -7,12 +7,12 @@ customHead = "socket"; //[button, hex, flatSocket, flatHead, conical, socket, se
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
+//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
 
 // try these:
 
 //demo();
-//tSlotDemo();
+tSlotDemo();
 
 //list_types(metric_fastener);
 
@@ -36,10 +36,11 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
   Reach me also at gmail: aaron.ciuffo
 
-  These fasteners are close aproximations to the ISO standards, but in many cases
-  are fudged.  Most notably the thread algorithm is not at all ISO compliant.  
+  ***These fasteners are close aproximations to the ISO standards, but in many cases are fudged.  Most notably the thread algorithm is not at all ISO compliant.***
 
-  Revision of http://www.thingiverse.com/thing:1220331/edit
+  Latest version available on [GitHub](https://github.com/txoof/OpenSCAD_fasteners)
+
+  Revision of http://www.thingiverse.com/thing:1220331
 
   Based heavily on http://www.thingiverse.com/thing:965737 by biomushroom
 
