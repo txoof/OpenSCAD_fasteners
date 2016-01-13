@@ -496,9 +496,6 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
 
   // don't do anything for type grub
 
-//<<<<<<< HEAD
-//=======
-
   if (head == "button") {
     c = size[4]; // chord length 
     f = size[11]*1.25; // height of button  * 1.25 rough aproximation of proper size 
@@ -506,8 +503,6 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
     //headRadius = ((pow(c,2)/4)-pow(f,2))/2*f;
     // r = radius of sphere that will be difference'd to make the button
     r = ( pow(c,2)/4 + pow(f,2) )/(2*f); 
-
-    echo(c, r);
 
     d = r - f; // displacement to move sphere
 
@@ -522,7 +517,6 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
     } // end difference
   } // end if button
 
-//>>>>>>> add_button
 }
 
 module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metric", 
@@ -835,32 +829,44 @@ module tSlotDemo() {
   tSlotBolt(size = defaultSize, length = bolt); // bolt with nut attached 
 }
 
+!demo();
+
 module demo() {
-  space = metric_fastener[3][4]*1.5; // spacing
+  space = metric_fastener[3][4]*2; // spacing
   
   // types of threads and fasteners
-  types =  ["conical", "socket", "hex", "flatHead", "grub", "nut", "washer"];
+  types =  ["conical", "socket", "hex", "flatHead", "button", "grub", "nut", "washer"];
 
-  colors = ["red", "orange", "gold", "green", "skyblue", "lavender", "violet"];
+  //colors = ["red", "orange", "gold", "green", "skyblue", "lavender", "violet"];
   
-  threads = ["metric", "none", "none"];
+  threads = ["metric", "none", "none", "none"];
 
-  quality = [36, 24, 7];
+  quality = [36, 24, 23, 8];
 
 
   // this is a little brittle - the nut and washer section will break if more 
   // head types are added 
+  h = 1.5;
+  ip = 7;
+  jp = 15;
+  m = 36;
   for (i = [0:len(types)-1]) { // recurse the types of heads, and fasteners
     for (j = [0:len(threads)-1]) { // recurse the types of threads 
+
+
+      r = 0.5+sin(h*(i+ip)*m)/2; // calculate red color
+      g = 0.5+sin(h*(j+jp)*m)/2;
+      b = 0.5+sin(h*(i+j+jp+ip)*m)/2;
+
       translate([space*i, j*space ,0]) 
-          color(colors[i])
-          if (i < 5) {
+          color([r, g, b])
+          if (i < len(types)-2) {
             bolt(head = types[i], threadType = threads[j], quality = quality[j]);
           } 
-          else if (i == 5) {
+          else if (i == len(types) - 2) {
             nut(threadType = threads[j], quality = quality[j]);
           }
-          else if (i == 6) {
+          else if (i == len(types) - 1) {
             washer(quality = quality[j]);
           }
     } // end for j
