@@ -7,7 +7,7 @@ customHead = "socket"; //[button, hex, flatSocket, flatHead, conical, socket, se
 customThread = "metric"; //[none, metric]
 customTolerance = 0.0; //[-0.9:0.05:0.9]
 
-bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
+//bolt(size = metric_fastener[customSize], length = customLength, head = customHead, threadType = customThread, tolerance = customTolerance, list = true);
 
 // try these:
 
@@ -33,6 +33,8 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
   =====start documentation=====
   Create nuts, bolts, washers, tslots 
 
+  This library was created to make adding nuts and bolts to 3D and 2D designs easier. The library provides features for making cut-outs for captive nuts and washers, bolt holes and t-slot joints.  Check the documentation below for more information.
+
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
   Reach me also at gmail: aaron.ciuffo
 
@@ -42,19 +44,20 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
 
   Revision of http://www.thingiverse.com/thing:1220331
 
-  Based heavily on http://www.thingiverse.com/thing:965737 by biomushroom
 
-  Thread algorithm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
+  ##### Thanks to:
+  * Biomushroom: http://www.thingiverse.com/thing:965737 by biomushroom
+  * TrevorM: Thread algorythm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
 
   
 
-  ISSUES:
+  ##### ISSUES:
     * only metric threads have been implemented
     * grub/set screws do not have socket heads
     * nodes do not work properly for sizes above M4
     * button head size is a bit of a fudge. 
 
-  TODO:
+  ##### TODO:
     * add socket to grub screws
 
 
@@ -78,7 +81,7 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
   **show most of the the features**
   * text = true/false - add descriptive text
 
-### tSlotDemo();
+#### tSlotDemo();
   **demonstrate a t-slot joint with a bolt**
   * for a working example of t-slot consturction see this [box](http://www.thingiverse.com/thing:1251283) built with t-slots
 
@@ -241,7 +244,7 @@ bolt(size = metric_fastener[customSize], length = customLength, head = customHea
   * length = N - length of bolt
     - default: 10
   * tolerance = R - total amount to add or subtract from the nut dimensions
-    - default: 0.2
+    - default: 0.25
   * node = P - node size as percentage of nut thickness
     - default: 0.15
   * 2d = true/false - true for working with 2 dimensional objects
@@ -409,7 +412,7 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
   o = 0.001; // overage to make cuts complete
 
   // list available heads here
-  headTypes = ["button", "conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket" ]; 
+  headTypes = ["button", "conical", "flatSocket", "flatHead", "grub", "hex", "set", "socket", "socketBlank" ]; 
   
 
   if (list) {
@@ -447,6 +450,27 @@ module bolt_head(size = defaultSize, head = "socket", quality = 24, tolerance = 
     } // end difference
   } // end if socket
 
+  if (head == "socketBlank") { // hex socket head
+    // minkwoski() adds 2*sphere radius to the head adjust variables to deal with this
+    headThick = size[5]-(1/8 * size[4])+tolerance;
+    headRad = (size[4] + tolerance)/2;
+    minSphere = headRad * 1/8; // radius for minkowski sphere
+   
+    transZ = quality >= 24 ? 1 : 0; // set to 0 if quality is less than 24
+
+    // move the head to the origin, move just under origin to ensure union 
+    translate([0, 0, ((1/8 * size[4])/2*transZ)-o*5]) 
+    difference() {
+      if (quality >= 24) { // if low quality, disable minkowski
+        minkowski() { // create a nicely rounded head
+          sphere(r = minSphere);
+          cylinder ( h = headThick, r = headRad - minSphere);
+        } // end minkowski
+      } else { // for low rez head - add back in difference from minkowski
+        cylinder(h = headThick + minSphere*2, r = headRad);
+      }
+    } // end difference
+  } // end if socketBlank
 
   if (head == "conical") {
     // minkwoski() adds 2*sphere radius to the head adjust variables to deal with this
@@ -723,13 +747,12 @@ module washerHole(size = defaultSize, quality = 24, , tolerance = 0.2, 2d = fals
 }
 
 
-
 /*
   create a tSlot joint
   https://planiverse.wordpress.com/2014/04/07/construction-technique-tab-and-slot-with-t-nut/
 */
 module tSlot(size = defaultSize, material = 3, length = 10, 
-            tolerance = 0.5, node = 0.15, 2d = false, v = false) {
+            tolerance = 0.25, node = 0.15, 2d = false, v = false) {
 
   boltDia = size[1] + tolerance;
   nutTh = size[7] + tolerance;
@@ -738,6 +761,22 @@ module tSlot(size = defaultSize, material = 3, length = 10,
   t = tolerance;
   
   boltSlot = length + 2*t - material; // length of bolt slot - material + tolerance
+
+  if (v == true) {
+    echo("tSlot");
+    echo(str("tolerance: ", tolerance));
+    echo(str("material: ", material));
+    echo(str("node percentage: ", node));
+    echo(str("size: ", size[0])); 
+    echo(str("bolt diameter: ", size[1]));
+    echo(str("bolt length: ", length));
+    echo(str("bolt length - material + tolerance: ", boltSlot));
+    echo(str("nut diameter: ", nutRad*2));
+    echo(str("nut flat: ", size[7]));
+    echo(str("nut flat + tolerance: ", nutFlat));
+    echo(str("nut thickness: ", size[7]));
+    echo(str("nut thickess + tolerance: ", nutTh));
+  }
 
   if (2d) {
     union() {
