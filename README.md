@@ -1,6 +1,8 @@
   =====start documentation=====
   Create nuts, bolts, washers, tslots 
 
+  This library was created to make adding nuts and bolts to 3D and 2D designs easier. The library provides features for making cut-outs for captive nuts and washers, bolt holes and t-slot joints.  Check the documentation below for more information.
+
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
   Reach me also at gmail: aaron.ciuffo
 
@@ -10,19 +12,20 @@
 
   Revision of http://www.thingiverse.com/thing:1220331
 
-  Based heavily on http://www.thingiverse.com/thing:965737 by biomushroom
 
-  Thread algorithm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
+  ##### Thanks to:
+  * Biomushroom: http://www.thingiverse.com/thing:965737 by biomushroom
+  * TrevorM: Thread algorythm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
 
   
 
-  ISSUES:
+  ##### ISSUES:
     * only metric threads have been implemented
     * grub/set screws do not have socket heads
     * nodes do not work properly for sizes above M4
     * button head size is a bit of a fudge. 
 
-  TODO:
+  ##### TODO:
     * add socket to grub screws
 
 
@@ -46,7 +49,7 @@
   **show most of the the features**
   * text = true/false - add descriptive text
 
-### tSlotDemo();
+#### tSlotDemo();
   **demonstrate a t-slot joint with a bolt**
   * for a working example of t-slot consturction see this [box](http://www.thingiverse.com/thing:1251283) built with t-slots
 
@@ -209,7 +212,7 @@
   * length = N - length of bolt
     - default: 10
   * tolerance = R - total amount to add or subtract from the nut dimensions
-    - default: 0.2
+    - default: 0.25
   * node = P - node size as percentage of nut thickness
     - default: 0.15
   * 2d = true/false - true for working with 2 dimensional objects
