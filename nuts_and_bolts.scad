@@ -17,7 +17,6 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
 //list_types(metric_fastener);
 
 //bolt(v=true);
-
 //bolt(size=metric_fastener[3], head = "", length = 12, threadType = "metric", center = 0,  v = 0, list = true);
 //boltHole(v = true, center = true, 2d = true, tolerance = .4);
 
@@ -612,8 +611,11 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
 /* 
   3D nut model
 */
+nut(metric_fastener[10], support = true);
+list_types(metric_fastener);
+
 module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 0,
-          list = false, center = false, v = false) {
+          list = false, center = false, support = false, v = false) {
 
   $fn = quality;
   height = size[7]+tolerance;
@@ -621,36 +623,58 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
   boltSize = size[3]+tolerance;
   defaultThread = "none";
   threadTypes = ["none", "metric"];
+  ovr = 0.001; // use this value for making things larger
+  support = .1;
+  gap = 3; 
 
   threadType = checkType(threadType, threadTypes) == [[]] ? defaultThread: threadType;
+  
+  // amount to translate if the nut is meant to centered
+  centerTransZ = center == true ? -height/2 : 0; 
 
-  centerTransZ = center == true ? -height/2 : 0;
+  if (support) { // a nut for cutouts with supports
+    echo("support");
+    translate([0, 0, centerTransZ])
+      union() {
+        difference() { // create an empty shell that will hold the supports
+          cylinder(r = radius+ovr, h = height, $fn = 6);
+          translate([0, 0, -height*ovr/2])
+            cylinder(r = radius, h = height*(1+ovr), $fn =6);
+        }
+        //for (i = [0:
+        translate([0, 0, height/2])
+          cube([(radius*2), support, height], center = true);
+        
+      }
+    
 
-  if (v) {
-    echo("Nut");
-    echo("Options: size, threadType, quality, list, center, v");
-    echo(str("     size: ", size[0]));
-    echo(str("     nut thickness: ", height));
-    echo(str("     nut radius: ", radius));
-  }
-
-  if (list) {
-    echo("Available thread types:");
-    for (k = threadTypes) {
-      echo(str("     ", k));
+  } else { // a normal nut
+    if (v) {
+      echo("Nut");
+      echo("Options: size, threadType, quality, list, center, support, v");
+      echo(str("     size: ", size[0]));
+      echo(str("     nut thickness: ", height));
+      echo(str("     nut radius: ", radius));
     }
-  }
 
-  translate([0, 0, centerTransZ])
-  difference() {
-    intersection() {
-      cylinder(r = radius, h = height, $fn = 6);
-      cut_bit(height = height, boltSize = boltSize);
-    } // end intersection
-    translate([0, 0, -(height*1.1 - height)/2])
-      thread(size = size, threadType = threadType, 
-            length = height*1.1, tolerance = tolerance, quality = quality, list = list);
-  } // end difference
+    if (list) {
+      echo("Available thread types:");
+      for (k = threadTypes) {
+        echo(str("     ", k));
+      }
+    }
+
+    translate([0, 0, centerTransZ])
+    difference() {
+      intersection() {
+        cylinder(r = radius, h = height, $fn = 6);
+        cut_bit(height = height, boltSize = boltSize);
+      } // end intersection
+      translate([0, 0, -(height*1.1 - height)/2])
+        thread(size = size, threadType = threadType, 
+              length = height*1.1, tolerance = tolerance, quality = quality, list = list);
+    } // end difference
+  }
 //cylinder(center = true, r = 1.5, h = 5);
 }
 
