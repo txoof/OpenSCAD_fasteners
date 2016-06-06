@@ -16,6 +16,8 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
 
 //list_types(metric_fastener);
 
+//bolt(v=true);
+
 //bolt(size=metric_fastener[3], head = "", length = 12, threadType = "metric", center = 0,  v = 0, list = true);
 //boltHole(v = true, center = true, 2d = true, tolerance = .4);
 
@@ -356,13 +358,25 @@ function hexInradius(hexSize) = hexSize * (2 / sqrt(3));
 // check an array for a specific term
 function checkType(term, array) = search([term], array);
 
-module list_types(array) {
+
+module list_types(array, item = false) {
   // list available fastener types stored and index values for programming refference
   descriptor = array[0];
-  echo("**displays contents of descriptor array**");
-  echo("array_index[X] - X = value to be called for that fastener type.");
-  echo("     [Y] description: Z - Y = sub array index, Z = value stored");
-  for (i = [1:len(array)-1]) {
+  // only display all of the information if no item is passed
+  if (!item) {
+    echo("**displays contents of descriptor array**");
+    echo("array_index[X] - X = value to be called for that fastener type.");
+    echo("     [Y] description: Z - Y = sub array index, Z = value stored");
+  }
+
+  //range = !item ? [1:len(array-1)] : 
+
+  low = !item ? 1 : item;
+
+  high = !item ? len(array)-1 : item;
+  
+  //for (i = [1:len(array)-1]) {
+  for (i = [low:high]) {
     for (j = [ 0:len(array[i])-1 ] ) {
       if (j == 0) {
         echo(str(descriptor[j], ": ", array[i][j]));
@@ -567,7 +581,7 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
 
   threadType = checkType(threadType, threadTypes) == [[]] ? defaultThread : threadType;
 
-
+  // adjust the length if this is a flat head 
   myLength = head == "flatSocket" || head == "flatHead" ? length - size[5]*.75 : length;
 
   translate([0, 0, centerTransZ])
@@ -582,17 +596,17 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
   } // end difference
 
   if (v) { // verbose output for debugging
+    
     echo(str("Bolt"));
     echo("Options: size, head, length, threadType, quality, list, center, v");
     echo(str("     size: ", size[0]));
     echo(str("     diameter: ", size[1]+tolerance));
     echo(str("     thread length: ", length));
-    echo(str("     thread type: ", threadType));
-
-
+    echo(str("     thread type: ", threadType)); 
+    // add in code to call list_types() here
+    //list_types(metric_fastener);
   }
 }
-
 
 
 /* 
