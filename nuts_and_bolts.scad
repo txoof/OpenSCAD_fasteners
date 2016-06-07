@@ -616,13 +616,6 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
 /* 
   3D nut model
 */
-nut(metric_fastener[3], support = true);
-/*
-rotate([0, 0, 60])
-nut(metric_fastener[10], support = true);
-rotate([0, 0, -60])
-nut(metric_fastener[10], support = true);
-*/
 
 //list_types(metric_fastener);
 
@@ -937,6 +930,8 @@ module tSlotDemo() {
     tSlotBolt(size = defaultSize, length = bolt, material = material);  
 }
 
+demo();
+
 module demo(text = true) {
   space = metric_fastener[3][4]*2; // spacing in the display grid
   
@@ -945,7 +940,7 @@ module demo(text = true) {
   
   // type of object to render in each column
   types =  ["conical", "socket", "hex", "flatHead", "button", "grub", "nut", 
-            "washer", "text place holder"];
+            "nut cutout with support", "washer", "text place holder"];
 
   // options for each row to be rendered [thread type, quality]
   renderOpts = [["metric", 36], ["metric", 24], ["none", 23], ["none", 9]];
@@ -974,12 +969,16 @@ module demo(text = true) {
 
       translate([space*i, j*space ,0]) 
           color([r, g, b])
-          if (i < len(types)-3) {
+          if (i < len(types)-4) {
             bolt(head = types[i], threadType = renderOpts[j][0], 
                 quality = renderOpts[j][1]);
           } 
-          else if (i == len(types) - 3) { // nuts should be third to last
+          else if (i == len(types) - 4) { // nuts fourth to last
             nut(threadType = renderOpts[j][0], quality = renderOpts[j][1]);
+          }
+          else if (i == len(types) - 3) { // cut out nuts should be third to last
+            rotate([0, 0, 90])
+            nut(support = true);
           } 
           else if (i == len(types) - 2) { // washers should be second to last
             washer(quality = renderOpts[j][1]);
