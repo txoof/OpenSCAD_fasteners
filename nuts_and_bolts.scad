@@ -352,7 +352,12 @@ defaultSize = metric_fastener[3];
 function hexRadius(hexSize) = hexSize/2/sin(60); 
 
 // radius of circle inside hexagon
-function hexInradius(hexSize) = hexSize * (2 / sqrt(3)); 
+function hexInradius(hexSize) = hexSize * (2 / sqrt(3));
+
+// calculate the length of a long base of a iscocolese trapezoid given the length
+// of the short base, height and smallest angle
+function isocTrapBase(top, height, angle = 60) = (height/tan(angle))*2 + top;
+
 
 // check an array for a specific term
 function checkType(term, array) = search([term], array);
@@ -612,21 +617,25 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
   3D nut model
 */
 nut(metric_fastener[10], support = true);
-list_types(metric_fastener);
+//list_types(metric_fastener);
 
 module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 0,
           list = false, center = false, support = false, v = false) {
 
   $fn = quality;
   height = size[7]+tolerance;
+  // calculate radius based on flat size
   radius = hexRadius(size[3]+tolerance/2);
   boltSize = size[3]+tolerance;
   defaultThread = "none";
   threadTypes = ["none", "metric"];
   ovr = 0.001; // use this value for making things larger
-  support = .1;
+  // support width
+  support = .1; 
+  // gap between supports
   gap = 3; 
 
+  // if no type is found, set to none, otherwise use the default thread type
   threadType = checkType(threadType, threadTypes) == [[]] ? defaultThread: threadType;
   
   // amount to translate if the nut is meant to centered
@@ -636,15 +645,19 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
     echo("support");
     translate([0, 0, centerTransZ])
       union() {
+
         difference() { // create an empty shell that will hold the supports
           cylinder(r = radius+ovr, h = height, $fn = 6);
           translate([0, 0, -height*ovr/2])
             cylinder(r = radius, h = height*(1+ovr), $fn =6);
         }
         //for (i = [0:
-        translate([0, 0, height/2])
-          cube([(radius*2), support, height], center = true);
-        
+        for (i = [0: boltSize/2/gap]) {
+          for (j = [-1, 1]) {
+            translate([0, i*gap*j, height/2])
+              cube([isocTrapBase(radius, size[3]/2-i*gap), support, height], center = true);
+          }
+        } // end for
       }
     
 
