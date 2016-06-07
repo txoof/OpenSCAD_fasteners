@@ -616,11 +616,18 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
 /* 
   3D nut model
 */
+nut(metric_fastener[3], support = true);
+/*
+rotate([0, 0, 60])
 nut(metric_fastener[10], support = true);
+rotate([0, 0, -60])
+nut(metric_fastener[10], support = true);
+*/
+
 //list_types(metric_fastener);
 
 module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 0,
-          list = false, center = false, support = false, v = false) {
+          list = false, center = false, support = false, gap = 1.5, width = .05, v = false) {
 
   $fn = quality;
   height = size[7]+tolerance;
@@ -631,9 +638,9 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
   threadTypes = ["none", "metric"];
   ovr = 0.001; // use this value for making things larger
   // support width
-  support = .1; 
+  //support = .1; 
   // gap between supports
-  gap = 3; 
+  //gap = 3; 
 
   // if no type is found, set to none, otherwise use the default thread type
   threadType = checkType(threadType, threadTypes) == [[]] ? defaultThread: threadType;
@@ -642,7 +649,6 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
   centerTransZ = center == true ? -height/2 : 0; 
 
   if (support) { // a nut for cutouts with supports
-    echo("support");
     translate([0, 0, centerTransZ])
       union() {
 
@@ -655,7 +661,7 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
         for (i = [0: boltSize/2/gap]) {
           for (j = [-1, 1]) {
             translate([0, i*gap*j, height/2])
-              cube([isocTrapBase(radius, size[3]/2-i*gap), support, height], center = true);
+              cube([isocTrapBase(radius, size[3]/2-i*gap), width, height], center = true);
           }
         } // end for
       }
@@ -664,7 +670,7 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
   } else { // a normal nut
     if (v) {
       echo("Nut");
-      echo("Options: size, threadType, quality, list, center, support, v");
+      echo("Options: size, threadType, quality, list, center, support, gap, width, v");
       echo(str("     size: ", size[0]));
       echo(str("     nut thickness: ", height));
       echo(str("     nut radius: ", radius));
