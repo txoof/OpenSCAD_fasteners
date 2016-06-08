@@ -744,11 +744,11 @@ module boltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0,
   create recessed sockets for captive nuts or similar
 */
 module nutHole(size = defaultSize, tolerance = 0.2, 2d = false, 
-              center = false, v = false) {
+              center = false, h = 0, v = false) {
 
   nutSize = size[3];
   nutRadius = hexRadius(nutSize)+tolerance/2;
-  height = size[7]+tolerance;
+  height = h > 0 ? h : size[7]+tolerance; // allow the cutout z dimension to be specified
   
   centerTransZ = center == true ? -height/2 : 0; // amount to center by
 
@@ -929,8 +929,6 @@ module tSlotDemo() {
     rotate([-90, 0, 0])
     tSlotBolt(size = defaultSize, length = bolt, material = material);  
 }
-
-demo();
 
 module demo(text = true) {
   space = metric_fastener[3][4]*2; // spacing in the display grid
