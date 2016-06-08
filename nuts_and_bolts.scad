@@ -359,6 +359,8 @@ function hexInradius(hexSize) = hexSize * (2 / sqrt(3));
 function isocTrapBase(top, height, angle = 60) = (height/tan(angle))*2 + top;
 
 
+function chordLen(radius, distance) = 2 * sqrt(radius*radius - distance*distance);
+
 // check an array for a specific term
 function checkType(term, array) = search([term], array);
 
@@ -620,7 +622,7 @@ module bolt(size = defaultSize, head = "socket", length = 10, threadType = "metr
 //list_types(metric_fastener);
 
 module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 0,
-          list = false, center = false, support = false, gap = 1.5, width = .05, v = false) {
+          list = false, center = false, v = false) {
 
   $fn = quality;
   height = size[7]+tolerance;
@@ -629,50 +631,25 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
   boltSize = size[3]+tolerance;
   defaultThread = "none";
   threadTypes = ["none", "metric"];
-  ovr = 0.001; // use this value for making things larger
-  // support width
-  //support = .1; 
-  // gap between supports
-  //gap = 3; 
 
   // if no type is found, set to none, otherwise use the default thread type
   threadType = checkType(threadType, threadTypes) == [[]] ? defaultThread: threadType;
   
-  // amount to translate if the nut is meant to centered
+  // amount to translate if the nut is meant to be centered
   centerTransZ = center == true ? -height/2 : 0; 
 
-  if (support) { // a nut for cutouts with supports
-    translate([0, 0, centerTransZ])
-      union() {
-
-        difference() { // create an empty shell that will hold the supports
-          cylinder(r = radius+ovr, h = height, $fn = 6);
-          translate([0, 0, -height*ovr/2])
-            cylinder(r = radius, h = height*(1+ovr), $fn =6);
-        }
-        //for (i = [0:
-        for (i = [0: boltSize/2/gap]) {
-          for (j = [-1, 1]) {
-            translate([0, i*gap*j, height/2])
-              cube([isocTrapBase(radius, size[3]/2-i*gap), width, height], center = true);
-          }
-        } // end for
-      }
-    
-
-  } else { // a normal nut
-    if (v) {
-      echo("Nut");
-      echo("Options: size, threadType, quality, list, center, support, gap, width, v");
-      echo(str("     size: ", size[0]));
-      echo(str("     nut thickness: ", height));
-      echo(str("     nut radius: ", radius));
-    }
+   if (v) {
+    echo("Nut");
+    echo("Options: size, threadType, quality, list, center, support, gap, width, v");
+    echo(str("     size: ", size[0]));
+    echo(str("     nut thickness: ", height));
+    echo(str("     nut radius: ", radius));
+   }
 
     if (list) {
       echo("Available thread types:");
-      for (k = threadTypes) {
-        echo(str("     ", k));
+    for (k = threadTypes) {
+      echo(str("     ", k));
       }
     }
 
@@ -686,8 +663,6 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
         thread(size = size, threadType = threadType, 
               length = height*1.1, tolerance = tolerance, quality = quality, list = list);
     } // end difference
-  }
-//cylinder(center = true, r = 1.5, h = 5);
 }
 
 
@@ -713,21 +688,40 @@ module washer(size = defaultSize, quality = 24, , tolerance = 0.1,
 
 }
 
+boltHole(support = true, center = true, size = metric_fastener[10]);
 
 /*
   boltHole();
   create a hole for a bolt to pass through
 */
 module boltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0, 
-                2d = false, center = false, v = false) {
+                2d = false, center = false, support = false, gap = 1.5, 
+                width = 0.05, v = false) {
 
 
   $fn = quality;
   boltDiameter = size[1] + tolerance;
+  ovr = 0.001;
+
   if (2d) {
     circle(r = boltDiameter/2);
   } else {
-    cylinder(r = boltDiameter/2, h = length, center = center);
+    if (support) {
+      union() {
+        difference() {
+          cylinder(r = boltDiameter/2+ovr, h = length, center = center);
+          cylinder(r = boltDiameter/2, h = length+ovr, center = center);
+        }
+        for (i = [0: boltDiameter/2/gap]) {
+          for (j = [-1, 1]) {
+            translate([i*gap*j, 0, 0])
+              #cube([width, chordLen((boltDiameter)/2, i*gap), length], center = true); 
+          }
+        }
+      }
+    } else {
+      cylinder(r = boltDiameter/2, h = length, center = center);
+    }  
   } 
 
   if (v) {
@@ -744,7 +738,7 @@ module boltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0,
   create recessed sockets for captive nuts or similar
 */
 module nutHole(size = defaultSize, tolerance = 0.2, 2d = false, 
-              center = false, h = 0, v = false) {
+              center = false, h = 0, support = true, gap = 1.5, width = 0.05,v = false) {
 
   nutSize = size[3];
   nutRadius = hexRadius(nutSize)+tolerance/2;
@@ -752,11 +746,35 @@ module nutHole(size = defaultSize, tolerance = 0.2, 2d = false,
   
   centerTransZ = center == true ? -height/2 : 0; // amount to center by
 
+  radius = hexRadius(size[3]+tolerance/2);
+  boltSize = size[3]+tolerance;
+  ovr = 0.001; // use this value for making things larger
+  
+
   if (2d) {
     circle( r = nutRadius, $fn = 6);
   } else {
-    translate([0, 0, centerTransZ])
-      cylinder(h = height, r = nutRadius, $fn = 6);
+    if (support) { // a nut for cutouts with supports
+      translate([0, 0, centerTransZ])
+        union() {
+
+          difference() { // create an empty shell that will hold the supports
+            cylinder(r = radius+ovr, h = height, $fn = 6);
+            translate([0, 0, -height*ovr/2])
+              cylinder(r = radius, h = height*(1+ovr), $fn =6);
+          }
+          //for (i = [0:
+          for (i = [0: boltSize/2/gap]) {
+            for (j = [-1, 1]) {
+              translate([0, i*gap*j, height/2])
+                cube([isocTrapBase(radius, size[3]/2-i*gap), width, height], center = true);
+            }
+          } // end for
+        }
+    } else {
+      translate([0, 0, centerTransZ])
+        cylinder(h = height, r = nutRadius, $fn = 6);
+    }
   }
 
   if (v) {
