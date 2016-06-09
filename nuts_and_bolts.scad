@@ -688,8 +688,6 @@ module washer(size = defaultSize, quality = 24, , tolerance = 0.1,
 
 }
 
-boltHole(support = true, center = true, size = metric_fastener[10]);
-
 /*
   boltHole();
   create a hole for a bolt to pass through
@@ -715,7 +713,7 @@ module boltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0,
         for (i = [0: boltDiameter/2/gap]) {
           for (j = [-1, 1]) {
             translate([i*gap*j, 0, 0])
-              #cube([width, chordLen((boltDiameter)/2, i*gap), length], center = true); 
+              cube([width, chordLen((boltDiameter)/2, i*gap), length], center = true); 
           }
         }
       }
