@@ -692,8 +692,8 @@ module washer(size = defaultSize, quality = 24, , tolerance = 0.1,
   boltHole();
   create a hole for a bolt to pass through
 */
-module boltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0, 
-                2d = false, center = false, support = false, gap = 1.5, 
+module boltHole(size = defaultSize, length = 10, quality = 24, head = false, 
+                tolerance = 0, 2d = false, center = false, support = false, gap = 1.5, 
                 width = 0.05, v = false) {
 
 
@@ -718,7 +718,9 @@ module boltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0,
         }
       }
     } else {
-      cylinder(r = boltDiameter/2, h = length, center = center);
+      union() {
+        cylinder(r = boltDiameter/2, h = length, center = center);
+      }
     }  
   } 
 
