@@ -352,7 +352,7 @@ defaultSize = metric_fastener[3];
 function hexRadius(hexSize) = hexSize/2/sin(60); 
 
 // radius of circle inside hexagon
-function hexInradius(hexSize) = hexSize * (2 / sqrt(3));
+function hexInradius(hexSize) = hexSize * (sqrt(3) / 2);
 
 // calculate the length of a long base of a iscocolese trapezoid given the length
 // of the short base, height and smallest angle
