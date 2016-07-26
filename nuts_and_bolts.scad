@@ -327,22 +327,21 @@ metric_fastener = [
 
   ["M1 - UNDEFINED"], // M1
 
-  ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5, .90, 2.31], // M2
-  ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7, 1.04, 3.18], // M3
-  ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9, 1.3, 4.04], // M4
+  ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5, .90, 4.62], // M2
+  ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7, 1.04, 6.35], // M3
+  ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9, 1.3, 8.08], // M4
   //["M5 BOGUS", 5, 3, 8, 9, 5, 4, 4, .8, .9, 10],
   ["M5 - UNDEFINED"],
-  ["M6 Bolt, Nut & Washer", 6, 4, 10, 10, 6, 5, 5, 1, 1.6, 12, 2.08, 5.77],
+  ["M6 Bolt, Nut & Washer", 6, 4, 10, 10, 6, 5, 5, 1, 1.6, 12, 2.08, 11.55],
   ["M7 - UNDEFINED"],
-  ["M8 Bolt, Nut & Washer", 8, 5.5, 13, 13, 8, 6, 6.5, 1.25, 2, 17, 2.6, 7.51],
+  ["M8 Bolt, Nut & Washer", 8, 5.5, 13, 13, 8, 6, 6.5, 1.25, 2, 17, 2.6, 15.01],
   ["M9 - UNDEFINED"],
-  ["M10 Bolt, Nut & Washer", 10, 7, 17, 16, 10, 8, 8, 1.5, 2, 21, 3.12]
+  ["M10 Bolt, Nut & Washer", 10, 7, 17, 16, 10, 8, 8, 1.5, 2, 21, 19.63]
 
 ];
 
-m = metric_fastener;
-
 // alias for metric_fastener:
+m = metric_fastener;
 
 
 // use this as the default in the event that no size is specified
