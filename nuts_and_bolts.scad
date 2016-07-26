@@ -692,7 +692,7 @@ module washer(size = defaultSize, quality = 24, , tolerance = 0.1,
   boltHole();
   create a hole for a bolt to pass through
 */
-boltHole(support=true);
+
 module boltHole(size = defaultSize, length = 10, quality = 24, head = false, 
                 tolerance = 0, 2d = false, center = false, support = false, gap = 1.5, 
                 width = 0.2, v = false) {
@@ -701,6 +701,9 @@ module boltHole(size = defaultSize, length = 10, quality = 24, head = false,
   $fn = quality;
   boltDiameter = size[1] + tolerance;
   ovr = 0.001;
+  
+  zTrans = center == true ? 0 : length/2;
+
 
   if (2d) {
     circle(r = boltDiameter/2);
@@ -713,7 +716,7 @@ module boltHole(size = defaultSize, length = 10, quality = 24, head = false,
         }
         for (i = [0: boltDiameter/2/gap]) {
           for (j = [-1, 1]) {
-            translate([i*gap*j, 0, 0])
+            translate([i*gap*j, 0, zTrans])
               cube([width, chordLen((boltDiameter)/2, i*gap), length], center = true); 
           }
         }
