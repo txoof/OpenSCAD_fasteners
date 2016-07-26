@@ -322,19 +322,19 @@ metric_fastener = [
   ["name", "thread diameter", "hex head thickess", "hex head & nut size", 
   "socket head diameter", "socket head thickness", "socket tool size", 
   "nut thickness,", "pitch", "washer thickness", "washer diameter",
-  "button thickness"] , 
+  "button thickness", "hex head and nut diameter"] , 
   // M0 - field descriptors place holder in array
 
   ["M1 - UNDEFINED"], // M1
 
-  ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5, .90], // M2
-  ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7, 1.04], // M3
-  ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9, 1.3], // M4
+  ["M2 Bolt, Nut & Washer", 2, 2, 4, 3.5, 2, 1.5, 1.6, 0.4, 0.3, 5.5, .90, 2.31], // M2
+  ["M3 Bolt, Nut & Washer", 3, 2, 5.5, 5.5, 3, 2.5, 2.4, 0.5, 0.5, 7, 1.04, 3.18], // M3
+  ["M4 Bolt, Nut & Washer", 4, 2.8, 7, 7, 4, 3, 3.2, 0.7, 0.8, 9, 1.3, 4.04], // M4
   //["M5 BOGUS", 5, 3, 8, 9, 5, 4, 4, .8, .9, 10],
   ["M5 - UNDEFINED"],
-  ["M6 Bolt, Nut & Washer", 6, 4, 10, 10, 6, 5, 5, 1, 1.6, 12, 2.08],
+  ["M6 Bolt, Nut & Washer", 6, 4, 10, 10, 6, 5, 5, 1, 1.6, 12, 2.08, 5.77],
   ["M7 - UNDEFINED"],
-  ["M8 Bolt, Nut & Washer", 8, 5.5, 13, 13, 8, 6, 6.5, 1.25, 2, 17, 2.6],
+  ["M8 Bolt, Nut & Washer", 8, 5.5, 13, 13, 8, 6, 6.5, 1.25, 2, 17, 2.6, 7.51],
   ["M9 - UNDEFINED"],
   ["M10 Bolt, Nut & Washer", 10, 7, 17, 16, 10, 8, 8, 1.5, 2, 21, 3.12]
 
