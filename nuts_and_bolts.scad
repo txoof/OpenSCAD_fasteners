@@ -39,6 +39,9 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   Aaron Ciuffo - http://www.thingiverse.com/txoof/about, 
   Reach me also at gmail: aaron.ciuffo
 
+
+
+
   ***These fasteners are close aproximations to the ISO standards, but in many cases are fudged.  Most notably the thread algorithm is not at all ISO compliant.***
 
   Latest version available on [GitHub](https://github.com/txoof/OpenSCAD_fasteners)
@@ -49,6 +52,7 @@ customTolerance = 0.0; //[-0.9:0.05:0.9]
   ##### Thanks to:
   * Biomushroom: http://www.thingiverse.com/thing:965737 by biomushroom
   * TrevorM: Thread algorythm based on http://www.thingiverse.com/thing:27183 by Trevor Moseley
+  * folofse - https://github.com/folofse for countersunk bolt hole
 
   
 
@@ -665,6 +669,39 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
 }
 
 
+/*
+ countersunkBoltHole();
+ create a countersunk hole for a flat head bolt to pass through
+
+*/
+
+module countersunkBoltHole(size = defaultSize, length = 10, quality = 24, tolerance = 0, 
+                2d = false, center = false, v = false) {
+  $fn = quality;
+  boltDiameter = size[1] + tolerance;
+  if (2d) {
+    circle(r = boltDiameter/2);
+  }else{
+    headThick = size[5]+tolerance;
+    headR1 = (size[1]+tolerance)/2;
+    headR2 = (size[4]+tolerance)/2;
+    headPos = length-(headThick*.75);
+
+    translate([0, 0, center ? headPos/2 : headPos])
+      cylinder(r1 = headR1, r2 = headR2, h = headThick*.75, center = center);
+
+    translate([0, 0, 0])
+      cylinder(r = boltDiameter/2, h = length, center = center);
+  }
+ 
+  if (v) {
+    echo("Countersunk bolt hole");
+    echo(str("size: ", size[0]));
+    echo(str("     diameter: ", boltDiameter));
+    echo(str("     length: ", length));
+  }
+}
+
 module washer(size = defaultSize, quality = 24, , tolerance = 0.1, 
               center = false, v = false) {
 
@@ -1008,6 +1045,5 @@ module demo(text = true) {
     } // end for j
   } // end for i
 } // end demo
-
 
 
