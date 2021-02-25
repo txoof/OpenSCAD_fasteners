@@ -404,8 +404,7 @@ module cut_bit(height, boltSize, quality = 64) { //hexagonal nuts insertion cuto
   translate([0, 0, height-height/2])
     cylinder(r1 = boltSize/1.5, r2 = boltSize/2, h = height/2);
   
-  translate([])
-    cylinder(r1 = boltSize/2, r2 = boltSize/1.5, h = height/2);
+  cylinder(r1 = boltSize/2, r2 = boltSize/1.5, h = height/2);
 }
 
 module thread(size = defaultSize, length = 10, threadType = "metric", 
@@ -664,7 +663,7 @@ module nut(size = defaultSize, threadType = "metric", quality = 24, tolerance = 
       } // end intersection
       translate([0, 0, -(height*1.1 - height)/2])
         thread(size = size, threadType = threadType, 
-              length = height*1.1, tolerance = tolerance, quality = quality, list = list);
+              length = height*1.1, tolerance = tolerance, quality = quality);
     } // end difference
 }
 
